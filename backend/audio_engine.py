@@ -22,6 +22,16 @@ ZONE_NAMES_HEBREW = {
     "bottom_right": "ימין למטה"
 }
 
+NOTE_NAMES_HEBREW = {
+    "C": "דו (C)",
+    "D": "רה (D)",
+    "E": "מי (E)",
+    "F": "פה (F)",
+    "G": "סול (G)",
+    "A": "לה (A)",
+    "B": "סי (B)"
+}
+
 MODEL_FILE = os.path.join(os.path.dirname(__file__), "calibration_model.json")
 
 PROFILES = {
@@ -57,11 +67,13 @@ class AudioEngine:
         self.is_running = False
         self.is_listening_active = False
 
+        # Acoustic Detection Mode: "taps" or "whistle"
+        self.mode = "taps"
+
         self.active_profile_key = "work"
         self.camera_engine = CameraEngine()
         self.is_camera_fusion_enabled = False
 
-        # Raised default sensitivity threshold from 0.02 to 0.045 to ignore random work movements
         self.sensitivity_threshold = 0.045
         self.cooldown_sec = 0.15
         self.last_trigger_time = 0
@@ -84,11 +96,25 @@ class AudioEngine:
         self.pending_single_timer = None
         self.double_tap_max_interval = 0.45
 
+        # Whistle Sustained Note Detector Tracker
+        self.whistle_start_time = None
+        self.whistle_current_note = None
+        self.whistle_duration_required = 0.85 # ~1 second sustained whistle
+        self.last_whistle_trigger_time = 0
+
         self.on_audio_frame = None
         self.on_tap_detected = None
         self.on_calib_progress = None
+        self.on_whistle_note_progress = None
 
         self._load_saved_calibration()
+
+    def set_mode(self, mode):
+        if mode in ["taps", "whistle"]:
+            self.mode = mode
+            logger.info(f"Audio Engine detection mode set to: {self.mode}")
+            return True
+        return False
 
     def set_profile(self, profile_key):
         if profile_key in PROFILES:
@@ -107,6 +133,47 @@ class AudioEngine:
         self.is_camera_fusion_enabled = active
         logger.info(f"Camera vision fusion enabled: {self.is_camera_fusion_enabled}")
         return self.is_camera_fusion_enabled
+
+    def detect_whistle_note(self, mono_chunk):
+        rms = float(np.sqrt(np.mean(mono_chunk**2)))
+        if rms < 0.015:
+            return None, 0, 0
+
+        n = len(mono_chunk)
+        fft_vals = np.abs(np.fft.rfft(mono_chunk * np.hanning(n)))
+        freqs = np.fft.rfftfreq(n, 1.0 / self.sample_rate)
+
+        max_idx = int(np.argmax(fft_vals))
+        peak_freq = freqs[max_idx]
+
+        total_energy = np.sum(fft_vals**2) + 1e-6
+        peak_energy = fft_vals[max_idx]**2
+        purity = float(peak_energy / total_energy)
+
+        if purity < 0.28 or peak_freq < 450 or peak_freq > 2800:
+            return None, peak_freq, purity
+
+        note_freqs = [
+            ("C", [523.25, 1046.5, 2093.0]),
+            ("D", [587.33, 1174.7, 2349.3]),
+            ("E", [659.25, 1318.5, 2637.0]),
+            ("F", [698.46, 1396.9, 2793.8]),
+            ("G", [783.99, 1567.9]),
+            ("A", [880.00, 1760.0]),
+            ("B", [987.77, 1975.5])
+        ]
+
+        best_note = None
+        min_diff = float("inf")
+
+        for note_name, freqs_list in note_freqs:
+            for f in freqs_list:
+                diff = abs(peak_freq - f)
+                if diff < min_diff and diff < 120.0:
+                    min_diff = diff
+                    best_note = note_name
+
+        return best_note, peak_freq, purity
 
     def extract_features_stereo(self, audio_slice_stereo):
         if len(audio_slice_stereo) < 128:
@@ -230,18 +297,56 @@ class AudioEngine:
             return
 
         now = time.time()
-        if peak > self.sensitivity_threshold and (now - self.last_trigger_time) > self.cooldown_sec:
-            pre_samples = int(self.sample_rate * 0.04)
-            post_samples = int(self.sample_rate * 0.12)
-            
-            slice_end = len(self.audio_buffer)
-            slice_start = max(0, slice_end - (pre_samples + post_samples))
-            audio_transient_stereo = self.audio_buffer[slice_start:slice_end, :]
 
-            features, quality = self.extract_features_stereo(audio_transient_stereo)
-            if features is not None:
-                self.last_trigger_time = now
-                self._handle_tap(features, quality)
+        if self.mode == "whistle":
+            note, peak_freq, purity = self.detect_whistle_note(mono_samples)
+            if note is not None:
+                if self.whistle_current_note == note:
+                    duration = now - self.whistle_start_time
+                    progress_pct = min(100, int((duration / self.whistle_duration_required) * 100))
+                    
+                    if self.on_whistle_note_progress:
+                        self.on_whistle_note_progress(note, NOTE_NAMES_HEBREW.get(note, note), duration, progress_pct, peak_freq)
+
+                    if duration >= self.whistle_duration_required and (now - self.last_whistle_trigger_time) > 1.2:
+                        self.last_whistle_trigger_time = now
+                        self.whistle_start_time = None
+                        self.whistle_current_note = None
+
+                        note_zone_map = {
+                            "C": "top_left",
+                            "D": "top_left",
+                            "E": "top_right",
+                            "F": "top_right",
+                            "G": "bottom_left",
+                            "A": "bottom_right",
+                            "B": "bottom_right"
+                        }
+                        target_zone = note_zone_map.get(note, "top_left")
+                        logger.info(f"🎶 1-SECOND SUSTAINED WHISTLE NOTE CONFIRMED: Note={note} ({peak_freq:.1f}Hz) -> Zone={target_zone}")
+
+                        if self.on_tap_detected:
+                            self.on_tap_detected(target_zone, 0.98, "single")
+                else:
+                    self.whistle_start_time = now
+                    self.whistle_current_note = note
+            else:
+                self.whistle_start_time = None
+                self.whistle_current_note = None
+
+        else:
+            if peak > self.sensitivity_threshold and (now - self.last_trigger_time) > self.cooldown_sec:
+                pre_samples = int(self.sample_rate * 0.04)
+                post_samples = int(self.sample_rate * 0.12)
+                
+                slice_end = len(self.audio_buffer)
+                slice_start = max(0, slice_end - (pre_samples + post_samples))
+                audio_transient_stereo = self.audio_buffer[slice_start:slice_end, :]
+
+                features, quality = self.extract_features_stereo(audio_transient_stereo)
+                if features is not None:
+                    self.last_trigger_time = now
+                    self._handle_tap(features, quality)
 
     def _handle_tap(self, features, quality=90):
         now = time.time()

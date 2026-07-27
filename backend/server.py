@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
 
-from backend.audio_engine import AudioEngine, ZONES, ZONE_NAMES_HEBREW, PROFILES
+from backend.audio_engine import AudioEngine, ZONES, ZONE_NAMES_HEBREW, PROFILES, NOTE_NAMES_HEBREW
 from backend.actions import execute_action
 
 logging.basicConfig(level=logging.INFO)
@@ -141,6 +141,16 @@ def on_calib_progress(zone, count, total, quality=90):
         "quality": quality
     })
 
+def on_whistle_note_progress(note, note_name_hebrew, duration, progress_pct, peak_freq):
+    manager.broadcast_sync({
+        "event": "whistle_progress",
+        "note": note,
+        "note_name": note_name_hebrew,
+        "duration": round(duration, 2),
+        "progress_pct": progress_pct,
+        "peak_freq": round(peak_freq, 1)
+    })
+
 def on_cam_calib_progress(zone, remaining, progress_pct, finished=False, reset=False):
     manager.broadcast_sync({
         "event": "cam_calib_progress",
@@ -154,6 +164,7 @@ def on_cam_calib_progress(zone, remaining, progress_pct, finished=False, reset=F
 audio_engine.on_audio_frame = on_audio_frame
 audio_engine.on_tap_detected = on_tap_detected
 audio_engine.on_calib_progress = on_calib_progress
+audio_engine.on_whistle_note_progress = on_whistle_note_progress
 audio_engine.camera_engine.on_cam_calib_progress = on_cam_calib_progress
 
 @app.on_event("startup")
@@ -178,6 +189,7 @@ async def websocket_endpoint(websocket: WebSocket):
             "is_listening_active": audio_engine.is_listening_active,
             "is_camera_fusion_enabled": audio_engine.is_camera_fusion_enabled,
             "sensitivity": audio_engine.sensitivity_threshold,
+            "mode": audio_engine.mode,
             "active_profile": audio_engine.active_profile_key,
             "actions": actions_config
         })
@@ -206,10 +218,19 @@ def get_status():
         "is_camera_fusion_enabled": audio_engine.is_camera_fusion_enabled,
         "is_calibrated": audio_engine.is_calibrated,
         "sensitivity": audio_engine.sensitivity_threshold,
+        "mode": audio_engine.mode,
         "active_profile": audio_engine.active_profile_key,
         "zones": ZONES,
         "actions": actions_config
     }
+
+@app.post("/api/set_mode/{mode}")
+def set_mode(mode: str):
+    success = audio_engine.set_mode(mode)
+    if not success:
+        raise HTTPException(status_code=400, detail="Invalid mode")
+    manager.broadcast_sync({"event": "mode_switched", "mode": audio_engine.mode})
+    return {"status": "success", "mode": audio_engine.mode}
 
 @app.post("/api/profile/{profile_key}")
 def switch_profile(profile_key: str):
@@ -240,11 +261,31 @@ def process_web_tap(data: WebAudioTransient):
         return {"status": "ignored", "reason": "listening inactive"}
     
     samples = np.array(data.samples, dtype=np.float32)
-    features, quality = audio_engine.extract_features_stereo(samples)
-    if features is not None:
-        audio_engine._handle_tap(features, quality)
+    
+    if audio_engine.mode == "whistle":
+        note, peak_freq, purity = audio_engine.detect_whistle_note(samples)
+        if note is not None:
+            now = time.time()
+            if audio_engine.whistle_current_note == note:
+                duration = now - audio_engine.whistle_start_time
+                progress_pct = min(100, int((duration / audio_engine.whistle_duration_required) * 100))
+                on_whistle_note_progress(note, NOTE_NAMES_HEBREW.get(note, note), duration, progress_pct, peak_freq)
+                if duration >= audio_engine.whistle_duration_required and (now - audio_engine.last_whistle_trigger_time) > 1.2:
+                    audio_engine.last_whistle_trigger_time = now
+                    audio_engine.whistle_start_time = None
+                    audio_engine.whistle_current_note = None
+                    note_zone_map = { "C": "top_left", "D": "top_left", "E": "top_right", "F": "top_right", "G": "bottom_left", "A": "bottom_right", "B": "bottom_right" }
+                    on_tap_detected(note_zone_map.get(note, "top_left"), 0.98, "single")
+            else:
+                audio_engine.whistle_start_time = now
+                audio_engine.whistle_current_note = note
         return {"status": "success"}
-    return {"status": "ignored", "reason": "invalid features"}
+    else:
+        features, quality = audio_engine.extract_features_stereo(samples)
+        if features is not None:
+            audio_engine._handle_tap(features, quality)
+            return {"status": "success"}
+        return {"status": "ignored", "reason": "invalid features"}
 
 @app.post("/api/set_camera_quadrant")
 def set_camera_quadrant(update: CamQuadrantUpdate):

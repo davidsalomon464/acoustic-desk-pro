@@ -217,6 +217,32 @@
             align-items: center;
         }
 
+        .mode-toggle-box {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            padding: 3px;
+            border-radius: 10px;
+            gap: 3px;
+        }
+
+        .mode-btn {
+            padding: 5px 12px;
+            border-radius: 7px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-emerald);
+            color: #022c22;
+        }
+
         .section-title {
             font-size: 1.05rem;
             font-weight: 600;
@@ -436,6 +462,31 @@
             border: 1px solid var(--panel-border);
         }
 
+        .whistle-bar-container {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(9, 13, 22, 0.8);
+            border: 1px solid var(--panel-border);
+            padding: 10px 14px;
+            border-radius: 10px;
+        }
+
+        .whistle-bar-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .whistle-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-emerald));
+            transition: width 0.1s linear;
+        }
+
         .log-container {
             height: 200px;
             overflow-y: auto;
@@ -615,9 +666,13 @@
             <div class="desk-header">
                 <div class="section-title">
                     <span>🖥️</span>
-                    <span>מפת שולחן עבודה אקוסטית (4 פינות - 8 פעולות)</span>
+                    <span>מפת שולחן אקוסטית (4 פינות - 8 פעולות)</span>
                 </div>
-                <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ נקישה בודדת | ⚡ נקישה כפולה</span>
+                
+                <div class="mode-toggle-box">
+                    <button class="mode-btn active" id="mode_taps" onclick="switchDetectionMode('taps')">👏 נקישות שולחן</button>
+                    <button class="mode-btn" id="mode_whistle" onclick="switchDetectionMode('whistle')">🎼 שריקת תווים (1s)</button>
+                </div>
             </div>
 
             <div class="desk-matrix">
@@ -628,7 +683,7 @@
 
                 <div class="zone-card" id="zone_top_left">
                     <div class="zone-top">
-                        <span class="zone-badge">Top Left</span>
+                        <span class="zone-badge">Top Left (דו / רה)</span>
                         <span class="zone-title">↖️ שמאל למעלה</span>
                     </div>
 
@@ -651,7 +706,7 @@
 
                 <div class="zone-card" id="zone_top_right">
                     <div class="zone-top">
-                        <span class="zone-badge">Top Right</span>
+                        <span class="zone-badge">Top Right (מי / פה)</span>
                         <span class="zone-title">↗️ ימין למעלה</span>
                     </div>
 
@@ -674,7 +729,7 @@
 
                 <div class="zone-card" id="zone_bottom_left">
                     <div class="zone-top">
-                        <span class="zone-badge">Bottom Left</span>
+                        <span class="zone-badge">Bottom Left (סול)</span>
                         <span class="zone-title">↙️ שמאל למטה</span>
                     </div>
 
@@ -697,7 +752,7 @@
 
                 <div class="zone-card" id="zone_bottom_right">
                     <div class="zone-top">
-                        <span class="zone-badge">Bottom Right</span>
+                        <span class="zone-badge">Bottom Right (לה / סי)</span>
                         <span class="zone-title">↘️ ימין למטה</span>
                     </div>
 
@@ -730,7 +785,17 @@
                 
                 <div class="spatial-rect-screen">
                     <canvas id="acousticGridCanvas"></canvas>
-                    <div class="spatial-status-overlay" id="spatialStatusOverlay">ממתין לנקישה...</div>
+                    <div class="spatial-status-overlay" id="spatialStatusOverlay">ממתין לנקישה / שריקה...</div>
+                </div>
+
+                <div class="whistle-bar-container" id="whistleProgressContainer">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                        <span id="whistleNoteText">🎼 מד שריקת תווים (1 שניה)</span>
+                        <span id="whistleFreqText" style="color: var(--accent-gold); font-family: monospace;">-- Hz</span>
+                    </div>
+                    <div class="whistle-bar-track">
+                        <div class="whistle-bar-fill" id="whistleBarFill"></div>
+                    </div>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -749,7 +814,7 @@
                 </div>
                 <div class="log-container" id="logFeed">
                     <div class="log-item">
-                        <span>AcousticDesk Pro מוכן (סף רגישות: 0.045)</span>
+                        <span>AcousticDesk Pro מוכן (תמיכה בשריקת תווים 1s)</span>
                         <span class="log-time">עכשיו</span>
                     </div>
                 </div>
@@ -799,7 +864,7 @@
             <div style="display: flex; flex-direction: column; gap: 16px; max-height: 440px; overflow-y: auto; padding-right: 4px;">
                 
                 <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-weight: bold; color: var(--accent-emerald);">↖️ שמאל למעלה (Top Left)</div>
+                    <div style="font-weight: bold; color: var(--accent-emerald);">↖️ שמאל למעלה (Top Left - תו דו / רה)</div>
                     <div class="form-row">
                         <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
                         <select id="cfg_single_type_top_left">
@@ -823,7 +888,7 @@
                 </div>
 
                 <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-weight: bold; color: var(--accent-emerald);">↗️ ימין למעלה (Top Right)</div>
+                    <div style="font-weight: bold; color: var(--accent-emerald);">↗️ ימין למעלה (Top Right - תו מי / פה)</div>
                     <div class="form-row">
                         <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
                         <select id="cfg_single_type_top_right">
@@ -847,7 +912,7 @@
                 </div>
 
                 <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-weight: bold; color: var(--accent-emerald);">↙️ שמאל למטה (Bottom Left)</div>
+                    <div style="font-weight: bold; color: var(--accent-emerald);">↙️ שמאל למטה (Bottom Left - תו סול)</div>
                     <div class="form-row">
                         <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
                         <select id="cfg_single_type_bottom_left">
@@ -871,7 +936,7 @@
                 </div>
 
                 <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-weight: bold; color: var(--accent-emerald);">↘️ ימין למטה (Bottom Right)</div>
+                    <div style="font-weight: bold; color: var(--accent-emerald);">↘️ ימין למטה (Bottom Right - תו לה / סי)</div>
                     <div class="form-row">
                         <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
                         <select id="cfg_single_type_bottom_right">
@@ -942,6 +1007,7 @@
         let currentCalibIndex = 0;
         let isWizardActive = false;
         let isEngineActive = false;
+        let currentMode = "taps";
         let micAudioContext = null;
         let lastWebTapTime = 0;
 
@@ -1066,7 +1132,7 @@
 
             const statusEl = document.getElementById("spatialStatusOverlay");
             if (statusEl) {
-                statusEl.innerText = `נזוקה: ${ZONE_NAMES[zone]} (${Math.round(confidence * 100)}%)`;
+                statusEl.innerText = `נזוקה/שריקה: ${ZONE_NAMES[zone]} (${Math.round(confidence * 100)}%)`;
                 statusEl.style.borderColor = (mode === "double") ? "var(--accent-indigo)" : "var(--accent-emerald)";
             }
 
@@ -1075,6 +1141,19 @@
                     activeSpatialZone = null;
                 }
             }, 800);
+        }
+
+        function switchDetectionMode(mode) {
+            document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+            const btn = document.getElementById(`mode_${mode}`);
+            if (btn) btn.classList.add("active");
+
+            fetch(getApiBaseUrl() + `/api/set_mode/${mode}`, { method: "POST" })
+                .then(r => r.json())
+                .then(data => {
+                    currentMode = data.mode;
+                    addLog(`מצב זיהוי אקוסטי הוחלף ל: ${mode === 'whistle' ? '🎼 שריקת תווים (1 שניה)' : '👏 נקישות שולחן'}`, "system");
+                });
         }
 
         function switchProfile(profileKey) {
@@ -1145,13 +1224,15 @@
                 const thresh = parseFloat(document.getElementById("sensitivitySlider").value);
                 const now = Date.now();
 
-                if (peak > thresh && (now - lastWebTapTime > 250)) {
-                    lastWebTapTime = now;
-                    fetch(getApiBaseUrl() + "/api/process_web_tap", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ samples: samples })
-                    });
+                if (currentMode === "whistle" || peak > thresh) {
+                    if (now - lastWebTapTime > 150) {
+                        lastWebTapTime = now;
+                        fetch(getApiBaseUrl() + "/api/process_web_tap", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ samples: samples })
+                        });
+                    }
                 }
             };
 
@@ -1178,6 +1259,12 @@
                     } else if (data.event === "init_status") {
                         updatePowerStateUI(data.is_listening_active);
                         updateSensitivityUI(data.sensitivity);
+                        if (data.mode) {
+                            currentMode = data.mode;
+                            document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+                            const mBtn = document.getElementById(`mode_${data.mode}`);
+                            if (mBtn) mBtn.classList.add("active");
+                        }
                         if (data.active_profile) {
                             document.querySelectorAll(".profile-tab").forEach(t => t.classList.remove("active"));
                             const pBtn = document.getElementById(`prof_${data.active_profile}`);
@@ -1188,6 +1275,8 @@
                         }
                     } else if (data.event === "tap_detected") {
                         handleTapEvent(data);
+                    } else if (data.event === "whistle_progress") {
+                        handleWhistleProgress(data);
                     } else if (data.event === "calib_progress") {
                         handleCalibProgress(data);
                     } else if (data.event === "calib_finished") {
@@ -1195,6 +1284,8 @@
                         playChime(880);
                     } else if (data.event === "engine_toggled") {
                         updatePowerStateUI(data.is_listening_active);
+                    } else if (data.event === "mode_switched") {
+                        currentMode = data.mode;
                     } else if (data.event === "actions_updated") {
                         if (data.actions) {
                             renderActions(data.actions);
@@ -1208,6 +1299,19 @@
             ws.onclose = () => {
                 setTimeout(connectWebSocket, 2000);
             };
+        }
+
+        function handleWhistleProgress(data) {
+            document.getElementById("whistleNoteText").innerText = `🎼 שריקת תו: ${data.note_name} (${data.duration}s)`;
+            document.getElementById("whistleFreqText").innerText = `${data.peak_freq} Hz`;
+            document.getElementById("whistleBarFill").style.width = `${data.progress_pct}%`;
+
+            if (data.progress_pct >= 100) {
+                setTimeout(() => {
+                    document.getElementById("whistleBarFill").style.width = "0%";
+                    document.getElementById("whistleNoteText").innerText = "🎼 מד שריקת תווים (1 שניה)";
+                }, 600);
+            }
         }
 
         function toggleEnginePower() {
