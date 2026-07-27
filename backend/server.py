@@ -10,7 +10,7 @@ from typing import List, Dict, Any, Optional
 import numpy as np
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, Response
 from pydantic import BaseModel
 
 from backend.audio_engine import AudioEngine, ZONES, ZONE_NAMES_HEBREW, PROFILES, NOTE_NAMES_HEBREW
@@ -365,7 +365,11 @@ FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 def serve_index():
     index_path = os.path.join(FRONTEND_DIR, "index.html")
     if os.path.exists(index_path):
-        return FileResponse(index_path)
+        response = FileResponse(index_path)
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
     return HTMLResponse(f"<h1>Acoustic Desk Buttons Backend Running</h1><p>Frontend path: {index_path}</p>")
 
 if os.path.exists(FRONTEND_DIR):

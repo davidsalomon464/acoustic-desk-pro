@@ -3,266 +3,264 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AcousticDesk Pro - Commercial Spatial Audio Suite</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rubik:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>AcousticDesk Pro - Apple Edition</title>
     <style>
         :root {
-            --bg-obsidian: #080b11;
-            --panel-bg: rgba(17, 24, 39, 0.65);
-            --panel-border: rgba(255, 255, 255, 0.08);
-            --panel-border-hover: rgba(255, 255, 255, 0.18);
-            --accent-emerald: #10b981;
-            --accent-indigo: #6366f1;
-            --accent-gold: #f59e0b;
-            --accent-red: #ef4444;
-            --text-primary: #f4f4f5;
-            --text-secondary: #a1a1aa;
-            --text-muted: #71717a;
+            --apple-bg: #000000;
+            --apple-card: #161617;
+            --apple-card-hover: #1c1c1e;
+            --apple-border: rgba(255, 255, 255, 0.09);
+            --apple-border-hover: rgba(255, 255, 255, 0.2);
+            --apple-text-main: #f5f5f7;
+            --apple-text-sub: #86868b;
+            --apple-blue: #0071e3;
+            --apple-blue-hover: #0077ed;
+            --apple-green: #30d158;
+            --apple-indigo: #5e5ce6;
+            --apple-gold: #ffd60a;
+            --apple-red: #ff453a;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', 'Rubik', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: var(--bg-obsidian);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 40%),
-                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.06) 0px, transparent 40%);
-            color: var(--text-primary);
+            background-color: var(--apple-bg);
+            color: var(--apple-text-main);
             min-height: 100vh;
-            padding: 20px;
+            padding: 0 0 40px 0;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 24px;
         }
 
-        header {
+        /* Apple Navigation Bar */
+        nav.apple-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            width: 100%;
+            background: rgba(22, 22, 23, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid var(--apple-border);
+            padding: 12px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: var(--panel-bg);
-            backdrop-filter: blur(24px);
-            border: 1px solid var(--panel-border);
-            padding: 14px 22px;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .window-controls {
-            display: flex;
-            gap: 7px;
-            margin-left: 6px;
-        }
-
-        .w-dot {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-        }
-
-        .w-dot.close { background: #ff5f56; }
-        .w-dot.min { background: #ffbd2e; }
-        .w-dot.max { background: #27c93f; }
-
-        .brand-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .pro-badge {
-            font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            background: linear-gradient(135deg, var(--accent-emerald), #059669);
-            color: #022c22;
-            padding: 3px 8px;
-            border-radius: 6px;
-        }
-
-        .header-center {
-            display: flex;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--panel-border);
-            padding: 4px;
-            border-radius: 12px;
-            gap: 4px;
-        }
-
-        .profile-tab {
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: transparent;
-            border: none;
-        }
-
-        .profile-tab:hover {
-            color: white;
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .profile-tab.active {
-            background: var(--accent-indigo);
-            color: white;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        .header-right {
+        .apple-nav-left {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .btn {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid var(--panel-border);
-            color: var(--text-primary);
-            padding: 8px 16px;
-            border-radius: 10px;
+        .apple-logo {
+            font-size: 1.25rem;
+            color: #ffffff;
+        }
+
+        .apple-brand {
+            font-size: 1.05rem;
             font-weight: 600;
-            font-size: 0.85rem;
+            letter-spacing: -0.015em;
+            color: var(--apple-text-main);
+        }
+
+        .apple-sub {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--apple-text-sub);
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 8px;
+            border-radius: 980px;
+            letter-spacing: 0.04em;
+        }
+
+        .apple-segmented-control {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 3px;
+            border-radius: 980px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 2px;
+        }
+
+        .segmented-tab {
+            padding: 6px 16px;
+            border-radius: 980px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--apple-text-sub);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.28, 0.11, 0.32, 1);
+            background: transparent;
+            border: none;
+        }
+
+        .segmented-tab:hover {
+            color: #ffffff;
+        }
+
+        .segmented-tab.active {
+            background: #ffffff;
+            color: #000000;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .apple-nav-right {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
         }
 
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: var(--panel-border-hover);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-emerald), #059669);
-            color: #022c22;
-            border: none;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-            font-weight: 700;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
-        }
-
-        .power-switch {
+        .apple-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--apple-border);
+            color: var(--apple-text-main);
             padding: 8px 18px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.85rem;
+            border-radius: 980px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.28, 0.11, 0.32, 1);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .apple-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--apple-border-hover);
+        }
+
+        .apple-btn-blue {
+            background: var(--apple-blue);
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+        }
+
+        .apple-btn-blue:hover {
+            background: var(--apple-blue-hover);
+        }
+
+        .apple-power {
+            padding: 8px 18px;
+            border-radius: 980px;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
             border: none;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
+            gap: 6px;
+        }
+
+        .apple-power.on {
+            background: rgba(48, 209, 88, 0.15);
+            border: 1px solid var(--apple-green);
+            color: var(--apple-green);
+        }
+
+        .apple-power.off {
+            background: rgba(255, 69, 58, 0.15);
+            border: 1px solid var(--apple-red);
+            color: var(--apple-red);
+        }
+
+        /* Container Layout */
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Apple Hero Banner */
+        .apple-hero {
+            text-align: center;
+            padding: 24px 0 12px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 8px;
-            color: white;
         }
 
-        .power-switch.on {
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid var(--accent-emerald);
-            color: var(--accent-emerald);
+        .apple-hero-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: linear-gradient(180deg, #ffffff 0%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .power-switch.off {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid var(--accent-red);
-            color: var(--accent-red);
+        .apple-hero-sub {
+            font-size: 1.05rem;
+            color: var(--apple-text-sub);
+            max-width: 600px;
+            font-weight: 400;
         }
 
-        .dashboard-grid {
+        .main-grid {
             display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 20px;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
         }
 
-        .desk-container {
-            background: var(--panel-bg);
-            backdrop-filter: blur(24px);
-            border: 1px solid var(--panel-border);
+        .apple-card {
+            background: var(--apple-card);
+            border: 1px solid var(--apple-border);
             border-radius: 20px;
             padding: 24px;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            transition: border-color 0.3s ease;
         }
 
-        .desk-header {
+        .apple-card:hover {
+            border-color: var(--apple-border-hover);
+        }
+
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .mode-toggle-box {
-            display: flex;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--panel-border);
-            padding: 3px;
-            border-radius: 10px;
-            gap: 3px;
-        }
-
-        .mode-btn {
-            padding: 5px 12px;
-            border-radius: 7px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .mode-btn.active {
-            background: var(--accent-emerald);
-            color: #022c22;
-        }
-
-        .section-title {
-            font-size: 1.05rem;
+        .card-title {
+            font-size: 1.1rem;
             font-weight: 600;
+            color: var(--apple-text-main);
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: #ffffff;
+            gap: 8px;
         }
 
         .desk-matrix {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
-            gap: 18px;
+            gap: 16px;
             min-height: 480px;
             position: relative;
-            background: #050811;
+            background: #000000;
             border-radius: 16px;
             padding: 16px;
-            border: 1px solid var(--panel-border);
+            border: 1px solid var(--apple-border);
         }
 
         .laptop-center {
@@ -270,9 +268,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 130px;
-            height: 85px;
-            background: rgba(24, 24, 27, 0.95);
+            width: 120px;
+            height: 80px;
+            background: #1c1c1e;
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 12px;
             display: flex;
@@ -281,110 +279,93 @@
             justify-content: center;
             z-index: 5;
             pointer-events: none;
-            box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
         }
 
         .laptop-screen {
-            width: 85px;
-            height: 50px;
-            background: #090d16;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 80px;
+            height: 48px;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .laptop-base {
-            width: 105px;
-            height: 6px;
-            background: #27272a;
+            width: 95px;
+            height: 5px;
+            background: #2c2c2e;
             border-radius: 0 0 6px 6px;
             margin-top: 4px;
         }
 
         .zone-card {
-            background: rgba(24, 24, 27, 0.6);
-            border: 1px solid var(--panel-border);
+            background: rgba(28, 28, 30, 0.6);
+            border: 1px solid var(--apple-border);
             border-radius: 14px;
             padding: 16px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+            transition: all 0.3s cubic-bezier(0.28, 0.11, 0.32, 1);
         }
 
         .zone-card:hover {
-            border-color: var(--panel-border-hover);
-            background: rgba(24, 24, 27, 0.85);
+            border-color: var(--apple-border-hover);
+            background: rgba(28, 28, 30, 0.9);
         }
 
         .zone-card.triggered-single {
-            border-color: var(--accent-emerald) !important;
-            background: rgba(16, 185, 129, 0.12) !important;
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4) !important;
-            animation: pulseGlow 0.4s ease-out;
+            border-color: var(--apple-green) !important;
+            background: rgba(48, 209, 88, 0.12) !important;
+            box-shadow: 0 0 30px rgba(48, 209, 88, 0.3) !important;
         }
 
         .zone-card.triggered-double {
-            border-color: var(--accent-indigo) !important;
-            background: rgba(99, 102, 241, 0.15) !important;
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5) !important;
-            animation: pulseGlow 0.4s ease-out;
-        }
-
-        @keyframes pulseGlow {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
-
-        .zone-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-color: var(--apple-indigo) !important;
+            background: rgba(94, 92, 230, 0.15) !important;
+            box-shadow: 0 0 30px rgba(94, 92, 230, 0.4) !important;
         }
 
         .zone-badge {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            background: rgba(255, 255, 255, 0.05);
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--apple-text-sub);
+            background: rgba(255, 255, 255, 0.06);
             padding: 3px 8px;
             border-radius: 6px;
-            letter-spacing: 0.05em;
         }
 
         .zone-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: var(--apple-text-main);
         }
 
         .zone-action-box {
-            background: rgba(9, 13, 22, 0.7);
-            border: 1px solid var(--panel-border);
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--apple-border);
             padding: 8px 12px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             margin-top: 6px;
         }
 
         .action-label {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            min-width: 60px;
+            font-size: 0.68rem;
+            color: var(--apple-text-sub);
+            min-width: 55px;
         }
 
         .action-value {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-emerald);
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: var(--apple-green);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -394,53 +375,40 @@
         .zone-bottom {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             margin-top: 8px;
             gap: 6px;
         }
 
         .btn-test {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--panel-border);
-            color: var(--text-muted);
-            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--apple-border);
+            color: var(--apple-text-sub);
+            padding: 4px 10px;
             border-radius: 6px;
             font-size: 0.7rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
 
         .btn-test:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: white;
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
         }
 
         .sidebar {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-        }
-
-        .panel {
-            background: var(--panel-bg);
-            backdrop-filter: blur(24px);
-            border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
+            gap: 20px;
         }
 
         .spatial-rect-screen {
             width: 100%;
-            height: 170px;
-            background: #050811;
+            height: 165px;
+            background: #000000;
             border-radius: 14px;
-            border: 1px solid var(--panel-border);
+            border: 1px solid var(--apple-border);
             position: relative;
             overflow: hidden;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
         }
 
         canvas#acousticGridCanvas {
@@ -452,55 +420,55 @@
         .spatial-status-overlay {
             position: absolute;
             bottom: 8px;
-            right: 12px;
+            right: 10px;
             font-size: 0.72rem;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-emerald);
-            background: rgba(9, 13, 22, 0.9);
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: var(--apple-green);
+            background: rgba(0, 0, 0, 0.85);
             padding: 4px 10px;
             border-radius: 6px;
-            border: 1px solid var(--panel-border);
+            border: 1px solid var(--apple-border);
         }
 
         .whistle-bar-container {
             display: flex;
             flex-direction: column;
             gap: 6px;
-            background: rgba(9, 13, 22, 0.8);
-            border: 1px solid var(--panel-border);
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--apple-border);
             padding: 10px 14px;
             border-radius: 10px;
         }
 
         .whistle-bar-track {
             width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 4px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
             overflow: hidden;
         }
 
         .whistle-bar-fill {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-gold), var(--accent-emerald));
+            background: linear-gradient(90deg, var(--apple-gold), var(--apple-green));
             transition: width 0.1s linear;
         }
 
         .log-container {
-            height: 200px;
+            height: 190px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.73rem;
         }
 
         .log-item {
             padding: 6px 10px;
-            background: rgba(9, 13, 22, 0.6);
-            border-right: 3px solid var(--accent-emerald);
+            background: rgba(0, 0, 0, 0.5);
+            border-right: 3px solid var(--apple-green);
             border-radius: 6px;
             display: flex;
             justify-content: space-between;
@@ -508,8 +476,8 @@
         }
 
         .log-time {
-            color: var(--text-muted);
-            font-size: 0.7rem;
+            color: var(--apple-text-sub);
+            font-size: 0.68rem;
         }
 
         .modal-overlay {
@@ -518,8 +486,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(5, 8, 17, 0.85);
-            backdrop-filter: blur(16px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -535,13 +504,13 @@
         }
 
         .modal {
-            background: #121824;
-            border: 1px solid var(--panel-border);
-            border-radius: 24px;
+            background: #1c1c1e;
+            border: 1px solid var(--apple-border);
+            border-radius: 20px;
             padding: 28px;
-            width: 660px;
+            width: 640px;
             max-width: 95vw;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -549,12 +518,13 @@
 
         .modal-title {
             font-size: 1.2rem;
-            font-weight: 700;
+            font-weight: 600;
+            color: #ffffff;
         }
 
         .calib-step-box {
-            background: rgba(24, 24, 27, 0.7);
-            border: 1px solid var(--accent-emerald);
+            background: #000000;
+            border: 1px solid var(--apple-green);
             padding: 24px;
             border-radius: 16px;
             text-align: center;
@@ -566,8 +536,8 @@
 
         .calib-zone-name {
             font-size: 1.3rem;
-            font-weight: 800;
-            color: var(--accent-emerald);
+            font-weight: 700;
+            color: var(--apple-green);
         }
 
         .tap-progress-rings {
@@ -584,45 +554,44 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 0.85rem;
             transition: all 0.3s ease;
         }
 
         .tap-ring.completed {
-            background: var(--accent-emerald);
-            border-color: var(--accent-emerald);
-            color: #022c22;
-            box-shadow: 0 0 14px var(--accent-emerald);
+            background: var(--apple-green);
+            border-color: var(--apple-green);
+            color: #000000;
+            box-shadow: 0 0 14px var(--apple-green);
         }
 
         .snr-quality-badge {
             font-size: 0.75rem;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-gold);
-            background: rgba(245, 158, 11, 0.12);
+            font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            color: var(--apple-gold);
+            background: rgba(255, 214, 10, 0.12);
             padding: 4px 10px;
             border-radius: 6px;
-            margin-top: 4px;
         }
 
         select, input[type="text"] {
-            background: #18181b;
-            border: 1px solid var(--panel-border);
-            color: white;
-            padding: 8px 10px;
+            background: #000000;
+            border: 1px solid var(--apple-border);
+            color: #ffffff;
+            padding: 8px 12px;
             border-radius: 8px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
         }
 
         select:focus, input[type="text"]:focus {
             outline: none;
-            border-color: var(--accent-emerald);
+            border-color: var(--apple-blue);
         }
 
         .form-row {
             display: grid;
-            grid-template-columns: 100px 140px 1fr;
+            grid-template-columns: 90px 130px 1fr;
             gap: 10px;
             align-items: center;
         }
@@ -630,195 +599,198 @@
 </head>
 <body>
 
-    <header>
-        <div class="header-left">
-            <div class="window-controls">
-                <div class="w-dot close"></div>
-                <div class="w-dot min"></div>
-                <div class="w-dot max"></div>
-            </div>
-            <div class="brand-title">
-                <span>AcousticDesk</span>
-                <span class="pro-badge">PRO</span>
-            </div>
+    <nav class="apple-nav">
+        <div class="apple-nav-left">
+            <span class="apple-logo"></span>
+            <span class="apple-brand">AcousticDesk Pro</span>
+            <span class="apple-sub">Apple Edition v3.0</span>
         </div>
 
-        <div class="header-center">
-            <button class="profile-tab active" id="prof_work" onclick="switchProfile('work')">💼 עבודה</button>
-            <button class="profile-tab" id="prof_media" onclick="switchProfile('media')">🎵 מדיה</button>
-            <button class="profile-tab" id="prof_gaming" onclick="switchProfile('gaming')">⚡ גיימינג</button>
+        <div class="apple-segmented-control">
+            <button class="segmented-tab active" id="prof_work" onclick="switchProfile('work')">💼 עבודה</button>
+            <button class="segmented-tab" id="prof_media" onclick="switchProfile('media')">🎵 מדיה</button>
+            <button class="segmented-tab" id="prof_gaming" onclick="switchProfile('gaming')">⚡ גיימינג</button>
         </div>
 
-        <div class="header-right">
-            <button class="power-switch off" id="btnTogglePower" onclick="toggleEnginePower()">
+        <div class="apple-nav-right">
+            <button class="apple-power off" id="btnTogglePower" onclick="toggleEnginePower()">
                 <span id="powerIcon">🔴</span>
                 <span id="powerText">כבוי (לחץ להפעלה)</span>
             </button>
 
-            <button class="btn btn-primary" onclick="startWizard()">🎓 כיול שולחן (8 נקישות)</button>
-            <button class="btn" onclick="openActionsModal()">⚙️ הגדרות</button>
+            <button class="apple-btn apple-btn-blue" onclick="startWizard()">🎓 כיול שולחן</button>
+            <button class="apple-btn" onclick="openActionsModal()">⚙️ הגדרות</button>
         </div>
-    </header>
+    </nav>
 
-    <div class="dashboard-grid">
+    <div class="container">
         
-        <div class="desk-container">
-            <div class="desk-header">
-                <div class="section-title">
-                    <span>🖥️</span>
-                    <span>מפת שולחן אקוסטית (4 פינות - 8 פעולות)</span>
-                </div>
-                
-                <div class="mode-toggle-box">
-                    <button class="mode-btn active" id="mode_taps" onclick="switchDetectionMode('taps')">👏 נקישות שולחן</button>
-                    <button class="mode-btn" id="mode_whistle" onclick="switchDetectionMode('whistle')">🎼 שריקת תווים (1s)</button>
-                </div>
-            </div>
-
-            <div class="desk-matrix">
-                <div class="laptop-center">
-                    <div class="laptop-screen">💻</div>
-                    <div class="laptop-base"></div>
-                </div>
-
-                <div class="zone-card" id="zone_top_left">
-                    <div class="zone-top">
-                        <span class="zone-badge">Top Left (דו / רה)</span>
-                        <span class="zone-title">↖️ שמאל למעלה</span>
-                    </div>
-
-                    <div class="zone-action-box">
-                        <span class="action-label">☝️ בודדת:</span>
-                        <span class="action-icon" id="icon_top_left_single">🌐</span>
-                        <span class="action-value" id="val_top_left_single">loading...</span>
-                    </div>
-                    <div class="zone-action-box">
-                        <span class="action-label">⚡ כפולה:</span>
-                        <span class="action-icon" id="icon_top_left_double">🎵</span>
-                        <span class="action-value" id="val_top_left_double">loading...</span>
-                    </div>
-
-                    <div class="zone-bottom">
-                        <button class="btn-test" onclick="testZoneAction('top_left', 'single')">בודדת ☝️</button>
-                        <button class="btn-test" onclick="testZoneAction('top_left', 'double')">כפולה ⚡</button>
-                    </div>
-                </div>
-
-                <div class="zone-card" id="zone_top_right">
-                    <div class="zone-top">
-                        <span class="zone-badge">Top Right (מי / פה)</span>
-                        <span class="zone-title">↗️ ימין למעלה</span>
-                    </div>
-
-                    <div class="zone-action-box">
-                        <span class="action-label">☝️ בודדת:</span>
-                        <span class="action-icon" id="icon_top_right_single">🌐</span>
-                        <span class="action-value" id="val_top_right_single">loading...</span>
-                    </div>
-                    <div class="zone-action-box">
-                        <span class="action-label">⚡ כפולה:</span>
-                        <span class="action-icon" id="icon_top_right_double">🎵</span>
-                        <span class="action-value" id="val_top_right_double">loading...</span>
-                    </div>
-
-                    <div class="zone-bottom">
-                        <button class="btn-test" onclick="testZoneAction('top_right', 'single')">בודדת ☝️</button>
-                        <button class="btn-test" onclick="testZoneAction('top_right', 'double')">כפולה ⚡</button>
-                    </div>
-                </div>
-
-                <div class="zone-card" id="zone_bottom_left">
-                    <div class="zone-top">
-                        <span class="zone-badge">Bottom Left (סול)</span>
-                        <span class="zone-title">↙️ שמאל למטה</span>
-                    </div>
-
-                    <div class="zone-action-box">
-                        <span class="action-label">☝️ בודדת:</span>
-                        <span class="action-icon" id="icon_bottom_left_single">💻</span>
-                        <span class="action-value" id="val_bottom_left_single">loading...</span>
-                    </div>
-                    <div class="zone-action-box">
-                        <span class="action-label">⚡ כפולה:</span>
-                        <span class="action-icon" id="icon_bottom_left_double">🌙</span>
-                        <span class="action-value" id="val_bottom_left_double">loading...</span>
-                    </div>
-
-                    <div class="zone-bottom">
-                        <button class="btn-test" onclick="testZoneAction('bottom_left', 'single')">בודדת ☝️</button>
-                        <button class="btn-test" onclick="testZoneAction('bottom_left', 'double')">כפולה ⚡</button>
-                    </div>
-                </div>
-
-                <div class="zone-card" id="zone_bottom_right">
-                    <div class="zone-top">
-                        <span class="zone-badge">Bottom Right (לה / סי)</span>
-                        <span class="zone-title">↘️ ימין למטה</span>
-                    </div>
-
-                    <div class="zone-action-box">
-                        <span class="action-label">☝️ בודדת:</span>
-                        <span class="action-icon" id="icon_bottom_right_single">💻</span>
-                        <span class="action-value" id="val_bottom_right_single">loading...</span>
-                    </div>
-                    <div class="zone-action-box">
-                        <span class="action-label">⚡ כפולה:</span>
-                        <span class="action-icon" id="icon_bottom_right_double">🔒</span>
-                        <span class="action-value" id="val_bottom_right_double">loading...</span>
-                    </div>
-
-                    <div class="zone-bottom">
-                        <button class="btn-test" onclick="testZoneAction('bottom_right', 'single')">בודדת ☝️</button>
-                        <button class="btn-test" onclick="testZoneAction('bottom_right', 'double')">כפולה ⚡</button>
-                    </div>
-                </div>
-
-            </div>
+        <div class="apple-hero">
+            <div class="apple-hero-title">Spatial Acoustic Control.</div>
+            <div class="apple-hero-sub">הפוך את משטח השולחן שלך למקלדת אקוסטית חכמה בטכנולוגיית Stereo TDOA ושריקת תווים.</div>
         </div>
 
-        <div class="sidebar">
-            <div class="panel">
-                <div class="section-title">
-                    <span>📡</span>
-                    <span>מסך אינדיקטיבי - מיקום נקישה בלייב</span>
-                </div>
-                
-                <div class="spatial-rect-screen">
-                    <canvas id="acousticGridCanvas"></canvas>
-                    <div class="spatial-status-overlay" id="spatialStatusOverlay">ממתין לנקישה / שריקה...</div>
-                </div>
-
-                <div class="whistle-bar-container" id="whistleProgressContainer">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
-                        <span id="whistleNoteText">🎼 מד שריקת תווים (1 שניה)</span>
-                        <span id="whistleFreqText" style="color: var(--accent-gold); font-family: monospace;">-- Hz</span>
+        <div class="main-grid">
+            
+            <div class="apple-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>🖥️</span>
+                        <span>מפת שולחן אקוסטית (4 פינות - 8 פעולות)</span>
                     </div>
-                    <div class="whistle-bar-track">
-                        <div class="whistle-bar-fill" id="whistleBarFill"></div>
+
+                    <div class="apple-segmented-control">
+                        <button class="segmented-tab active" id="mode_taps" onclick="switchDetectionMode('taps')">👏 נקישות שולחן</button>
+                        <button class="segmented-tab" id="mode_whistle" onclick="switchDetectionMode('whistle')">🎼 שריקת תווים (1s)</button>
                     </div>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
-                        <span>סף רגישות (Threshold)</span>
-                        <span id="threshVal" style="color: var(--accent-emerald); font-weight: bold;">0.045</span>
+                <div class="desk-matrix">
+                    <div class="laptop-center">
+                        <div class="laptop-screen"></div>
+                        <div class="laptop-base"></div>
                     </div>
-                    <input type="range" id="sensitivitySlider" min="0.01" max="0.15" step="0.005" value="0.045" oninput="updateSensitivity(this.value)" style="width: 100%; accent-color: var(--accent-emerald);">
+
+                    <div class="zone-card" id="zone_top_left">
+                        <div class="card-header">
+                            <span class="zone-badge">Top Left (דו / רה)</span>
+                            <span class="zone-title">↖️ שמאל למעלה</span>
+                        </div>
+
+                        <div class="zone-action-box">
+                            <span class="action-label">☝️ בודדת:</span>
+                            <span class="action-icon" id="icon_top_left_single">🌐</span>
+                            <span class="action-value" id="val_top_left_single">loading...</span>
+                        </div>
+                        <div class="zone-action-box">
+                            <span class="action-label">⚡ כפולה:</span>
+                            <span class="action-icon" id="icon_top_left_double">🎵</span>
+                            <span class="action-value" id="val_top_left_double">loading...</span>
+                        </div>
+
+                        <div class="zone-bottom">
+                            <button class="btn-test" onclick="testZoneAction('top_left', 'single')">בודדת ☝️</button>
+                            <button class="btn-test" onclick="testZoneAction('top_left', 'double')">כפולה ⚡</button>
+                        </div>
+                    </div>
+
+                    <div class="zone-card" id="zone_top_right">
+                        <div class="card-header">
+                            <span class="zone-badge">Top Right (מי / פה)</span>
+                            <span class="zone-title">↗️ ימין למעלה</span>
+                        </div>
+
+                        <div class="zone-action-box">
+                            <span class="action-label">☝️ בודדת:</span>
+                            <span class="action-icon" id="icon_top_right_single">🌐</span>
+                            <span class="action-value" id="val_top_right_single">loading...</span>
+                        </div>
+                        <div class="zone-action-box">
+                            <span class="action-label">⚡ כפולה:</span>
+                            <span class="action-icon" id="icon_top_right_double">🎵</span>
+                            <span class="action-value" id="val_top_right_double">loading...</span>
+                        </div>
+
+                        <div class="zone-bottom">
+                            <button class="btn-test" onclick="testZoneAction('top_right', 'single')">בודדת ☝️</button>
+                            <button class="btn-test" onclick="testZoneAction('top_right', 'double')">כפולה ⚡</button>
+                        </div>
+                    </div>
+
+                    <div class="zone-card" id="zone_bottom_left">
+                        <div class="card-header">
+                            <span class="zone-badge">Bottom Left (סול)</span>
+                            <span class="zone-title">↙️ שמאל למטה</span>
+                        </div>
+
+                        <div class="zone-action-box">
+                            <span class="action-label">☝️ בודדת:</span>
+                            <span class="action-icon" id="icon_bottom_left_single">💻</span>
+                            <span class="action-value" id="val_bottom_left_single">loading...</span>
+                        </div>
+                        <div class="zone-action-box">
+                            <span class="action-label">⚡ כפולה:</span>
+                            <span class="action-icon" id="icon_bottom_left_double">🌙</span>
+                            <span class="action-value" id="val_bottom_left_double">loading...</span>
+                        </div>
+
+                        <div class="zone-bottom">
+                            <button class="btn-test" onclick="testZoneAction('bottom_left', 'single')">בודדת ☝️</button>
+                            <button class="btn-test" onclick="testZoneAction('bottom_left', 'double')">כפולה ⚡</button>
+                        </div>
+                    </div>
+
+                    <div class="zone-card" id="zone_bottom_right">
+                        <div class="card-header">
+                            <span class="zone-badge">Bottom Right (לה / סי)</span>
+                            <span class="zone-title">↘️ ימין למטה</span>
+                        </div>
+
+                        <div class="zone-action-box">
+                            <span class="action-label">☝️ בודדת:</span>
+                            <span class="action-icon" id="icon_bottom_right_single">💻</span>
+                            <span class="action-value" id="val_bottom_right_single">loading...</span>
+                        </div>
+                        <div class="zone-action-box">
+                            <span class="action-label">⚡ כפולה:</span>
+                            <span class="action-icon" id="icon_bottom_right_double">🔒</span>
+                            <span class="action-value" id="val_bottom_right_double">loading...</span>
+                        </div>
+
+                        <div class="zone-bottom">
+                            <button class="btn-test" onclick="testZoneAction('bottom_right', 'single')">בודדת ☝️</button>
+                            <button class="btn-test" onclick="testZoneAction('bottom_right', 'double')">כפולה ⚡</button>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <div class="panel" style="flex: 1;">
-                <div class="section-title">
-                    <span>📜</span>
-                    <span>יומן פעילות</span>
+            <div class="sidebar">
+                <div class="apple-card">
+                    <div class="card-title">
+                        <span>📡</span>
+                        <span>מכ"ם אקוסטי - מיקום בזמן אמת</span>
+                    </div>
+                    
+                    <div class="spatial-rect-screen">
+                        <canvas id="acousticGridCanvas"></canvas>
+                        <div class="spatial-status-overlay" id="spatialStatusOverlay">ממתין אות אקוסטי...</div>
+                    </div>
+
+                    <div class="whistle-bar-container" id="whistleProgressContainer">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--apple-text-sub);">
+                            <span id="whistleNoteText">🎼 מד שריקת תווים (1 שניה)</span>
+                            <span id="whistleFreqText" style="color: var(--apple-gold); font-family: monospace;">-- Hz</span>
+                        </div>
+                        <div class="whistle-bar-track">
+                            <div class="whistle-bar-fill" id="whistleBarFill"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--apple-text-sub);">
+                            <span>סף רגישות (Threshold)</span>
+                            <span id="threshVal" style="color: var(--apple-green); font-weight: 600;">0.045</span>
+                        </div>
+                        <input type="range" id="sensitivitySlider" min="0.01" max="0.15" step="0.005" value="0.045" oninput="updateSensitivity(this.value)" style="width: 100%; accent-color: var(--apple-blue);">
+                    </div>
                 </div>
-                <div class="log-container" id="logFeed">
-                    <div class="log-item">
-                        <span>AcousticDesk Pro מוכן (תמיכה בשריקת תווים 1s)</span>
-                        <span class="log-time">עכשיו</span>
+
+                <div class="apple-card" style="flex: 1;">
+                    <div class="card-title">
+                        <span>📜</span>
+                        <span>יומן אירועים</span>
+                    </div>
+                    <div class="log-container" id="logFeed">
+                        <div class="log-item">
+                            <span>AcousticDesk Apple Edition מוכן</span>
+                            <span class="log-time">עכשיו</span>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
 
     </div>
@@ -826,15 +798,15 @@
     <!-- Acoustic Calibration Wizard Modal -->
     <div class="modal-overlay" id="calibModal">
         <div class="modal">
-            <div class="modal-title">🎓 אשף כיול מסחרי (8 נקישות בכל פינה)</div>
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+            <div class="modal-title">🎓 אשף כיול אקוסטי (8 נקישות בכל פינה)</div>
+            <p style="font-size: 0.85rem; color: var(--apple-text-sub);">
                 לדיוק מוחלט, נקש באצבע 8 פעמים בכל פינה בשולחן בקצב נורמלי.
             </p>
 
             <div class="calib-step-box">
-                <span style="font-size: 0.8rem; color: var(--text-muted);" id="calibStepHeader">שלב 1 מתוך 4</span>
+                <span style="font-size: 0.8rem; color: var(--apple-text-sub);" id="calibStepHeader">שלב 1 מתוך 4</span>
                 <div class="calib-zone-name" id="calibTargetZoneName">↗️ ימין למעלה</div>
-                <p style="font-size: 0.85rem; color: var(--text-secondary);" id="calibInstructionText">נקש עכשיו 8 פעמים בפינה המבוקשת בשולחן</p>
+                <p style="font-size: 0.85rem; color: var(--apple-text-sub);" id="calibInstructionText">נקש עכשיו 8 פעמים בפינה המבוקשת בשולחן</p>
                 
                 <div class="tap-progress-rings" id="tapRings">
                     <div class="tap-ring">1</div>
@@ -851,7 +823,7 @@
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px;">
-                <button class="btn" onclick="closeCalibModal()">ביטול כיול</button>
+                <button class="apple-btn" onclick="closeCalibModal()">ביטול כיול</button>
             </div>
         </div>
     </div>
@@ -864,9 +836,9 @@
             <div style="display: flex; flex-direction: column; gap: 16px; max-height: 440px; overflow-y: auto; padding-right: 4px;">
                 
                 <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-weight: bold; color: var(--accent-emerald);">↖️ שמאל למעלה (Top Left - תו דו / רה)</div>
+                    <div style="font-weight: 600; color: var(--apple-green);">↖️ שמאל למעלה (Top Left - תו דו / רה)</div>
                     <div class="form-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
+                        <span style="font-size: 0.8rem; color: var(--apple-text-sub);">☝️ בודדת:</span>
                         <select id="cfg_single_type_top_left">
                             <option value="url">אתר (URL)</option>
                             <option value="app">אפליקציה (App)</option>
@@ -876,7 +848,7 @@
                         <input type="text" id="cfg_single_val_top_left" placeholder="https://google.com">
                     </div>
                     <div class="form-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">⚡ כפולה:</span>
+                        <span style="font-size: 0.8rem; color: var(--apple-text-sub);">⚡ כפולה:</span>
                         <select id="cfg_double_type_top_left">
                             <option value="shortcut">מערכת / קיצור</option>
                             <option value="url">אתר (URL)</option>
@@ -888,9 +860,9 @@
                 </div>
 
                 <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-weight: bold; color: var(--accent-emerald);">↗️ ימין למעלה (Top Right - תו מי / פה)</div>
+                    <div style="font-weight: 600; color: var(--apple-green);">↗️ ימין למעלה (Top Right - תו מי / פה)</div>
                     <div class="form-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
+                        <span style="font-size: 0.8rem; color: var(--apple-text-sub);">☝️ בודדת:</span>
                         <select id="cfg_single_type_top_right">
                             <option value="url">אתר (URL)</option>
                             <option value="app">אפליקציה (App)</option>
@@ -900,7 +872,7 @@
                         <input type="text" id="cfg_single_val_top_right" placeholder="https://youtube.com">
                     </div>
                     <div class="form-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">⚡ כפולה:</span>
+                        <span style="font-size: 0.8rem; color: var(--apple-text-sub);">⚡ כפולה:</span>
                         <select id="cfg_double_type_top_right">
                             <option value="shortcut">מערכת / קיצור</option>
                             <option value="url">אתר (URL)</option>
@@ -912,9 +884,9 @@
                 </div>
 
                 <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-weight: bold; color: var(--accent-emerald);">↙️ שמאל למטה (Bottom Left - תו סול)</div>
+                    <div style="font-weight: 600; color: var(--apple-green);">↙️ שמאל למטה (Bottom Left - תו סול)</div>
                     <div class="form-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
+                        <span style="font-size: 0.8rem; color: var(--apple-text-sub);">☝️ בודדת:</span>
                         <select id="cfg_single_type_bottom_left">
                             <option value="app">אפליקציה (App)</option>
                             <option value="url">אתר (URL)</option>
@@ -924,7 +896,7 @@
                         <input type="text" id="cfg_single_val_bottom_left" placeholder="Calculator">
                     </div>
                     <div class="form-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">⚡ כפולה:</span>
+                        <span style="font-size: 0.8rem; color: var(--apple-text-sub);">⚡ כפולה:</span>
                         <select id="cfg_double_type_bottom_left">
                             <option value="shortcut">מערכת / קיצור</option>
                             <option value="url">אתר (URL)</option>
@@ -936,9 +908,9 @@
                 </div>
 
                 <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
-                    <div style="font-weight: bold; color: var(--accent-emerald);">↘️ ימין למטה (Bottom Right - תו לה / סי)</div>
+                    <div style="font-weight: 600; color: var(--apple-green);">↘️ ימין למטה (Bottom Right - תו לה / סי)</div>
                     <div class="form-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
+                        <span style="font-size: 0.8rem; color: var(--apple-text-sub);">☝️ בודדת:</span>
                         <select id="cfg_single_type_bottom_right">
                             <option value="app">אפליקציה (App)</option>
                             <option value="url">אתר (URL)</option>
@@ -948,7 +920,7 @@
                         <input type="text" id="cfg_single_val_bottom_right" placeholder="Notes">
                     </div>
                     <div class="form-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">⚡ כפולה:</span>
+                        <span style="font-size: 0.8rem; color: var(--apple-text-sub);">⚡ כפולה:</span>
                         <select id="cfg_double_type_bottom_right">
                             <option value="shortcut">מערכת / קיצור</option>
                             <option value="url">אתר (URL)</option>
@@ -962,8 +934,8 @@
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
-                <button class="btn" onclick="closeActionsModal()">ביטול</button>
-                <button class="btn btn-primary" onclick="saveActionsConfig()">שמור הגדרות</button>
+                <button class="apple-btn" onclick="closeActionsModal()">ביטול</button>
+                <button class="apple-btn apple-btn-blue" onclick="saveActionsConfig()">שמור הגדרות</button>
             </div>
         </div>
     </div>
@@ -1046,13 +1018,13 @@
                 const cy = coord.y * h;
 
                 if (activeSpatialZone === z) {
-                    gCtx.fillStyle = "rgba(16, 185, 129, 0.15)";
+                    gCtx.fillStyle = "rgba(48, 209, 88, 0.15)";
                     const rx = (coord.x < 0.5) ? 0 : w / 2;
                     const ry = (coord.y < 0.5) ? 0 : h / 2;
                     gCtx.fillRect(rx, ry, w / 2, h / 2);
                 }
 
-                gCtx.fillStyle = (activeSpatialZone === z) ? "#10b981" : "rgba(255, 255, 255, 0.25)";
+                gCtx.fillStyle = (activeSpatialZone === z) ? "#30d158" : "rgba(255, 255, 255, 0.25)";
                 gCtx.beginPath();
                 gCtx.arc(cx, cy, 5, 0, Math.PI * 2);
                 gCtx.fill();
@@ -1062,20 +1034,20 @@
             const lHeight = 36;
             const lx = (w - lWidth) / 2;
             const ly = (h - lHeight) / 2;
-            gCtx.fillStyle = "rgba(24, 24, 27, 0.95)";
+            gCtx.fillStyle = "#1c1c1e";
             gCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
             gCtx.lineWidth = 1.5;
             gCtx.beginPath();
             gCtx.roundRect(lx, ly, lWidth, lHeight, 6);
             gCtx.fill();
             gCtx.stroke();
-            gCtx.fillStyle = "#a1a1aa";
+            gCtx.fillStyle = "#ffffff";
             gCtx.font = "12px sans-serif";
             gCtx.textAlign = "center";
             gCtx.textBaseline = "middle";
-            gCtx.fillText("💻", w / 2, h / 2);
+            gCtx.fillText("", w / 2, h / 2);
 
-            gCtx.strokeStyle = isEngineActive ? "rgba(16, 185, 129, 0.5)" : "rgba(113, 113, 122, 0.4)";
+            gCtx.strokeStyle = isEngineActive ? "rgba(48, 209, 88, 0.6)" : "rgba(134, 134, 139, 0.4)";
             gCtx.lineWidth = 1.5;
             gCtx.beginPath();
             const sliceWidth = w / waveformBuffer.length;
@@ -1101,13 +1073,13 @@
                 const alpha = Math.max(0, 1 - (elapsed / 0.8));
                 const radius = 10 + (elapsed * 45);
 
-                gCtx.strokeStyle = r.isDouble ? `rgba(99, 102, 241, ${alpha})` : `rgba(16, 185, 129, ${alpha})`;
+                gCtx.strokeStyle = r.isDouble ? `rgba(94, 92, 230, ${alpha})` : `rgba(48, 209, 88, ${alpha})`;
                 gCtx.lineWidth = 2.5;
                 gCtx.beginPath();
                 gCtx.arc(r.x, r.y, radius, 0, Math.PI * 2);
                 gCtx.stroke();
 
-                gCtx.fillStyle = r.isDouble ? `rgba(99, 102, 241, ${alpha})` : `rgba(16, 185, 129, ${alpha})`;
+                gCtx.fillStyle = r.isDouble ? `rgba(94, 92, 230, ${alpha})` : `rgba(48, 209, 88, ${alpha})`;
                 gCtx.beginPath();
                 gCtx.arc(r.x, r.y, 7, 0, Math.PI * 2);
                 gCtx.fill();
@@ -1133,7 +1105,7 @@
             const statusEl = document.getElementById("spatialStatusOverlay");
             if (statusEl) {
                 statusEl.innerText = `נזוקה/שריקה: ${ZONE_NAMES[zone]} (${Math.round(confidence * 100)}%)`;
-                statusEl.style.borderColor = (mode === "double") ? "var(--accent-indigo)" : "var(--accent-emerald)";
+                statusEl.style.borderColor = (mode === "double") ? "var(--apple-indigo)" : "var(--apple-green)";
             }
 
             setTimeout(() => {
@@ -1144,7 +1116,9 @@
         }
 
         function switchDetectionMode(mode) {
-            document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".apple-segmented-control .segmented-tab").forEach(b => {
+                if (b.id.startsWith("mode_")) b.classList.remove("active");
+            });
             const btn = document.getElementById(`mode_${mode}`);
             if (btn) btn.classList.add("active");
 
@@ -1157,7 +1131,9 @@
         }
 
         function switchProfile(profileKey) {
-            document.querySelectorAll(".profile-tab").forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".apple-nav .segmented-tab").forEach(t => {
+                if (t.id.startsWith("prof_")) t.classList.remove("active");
+            });
             const btn = document.getElementById(`prof_${profileKey}`);
             if (btn) btn.classList.add("active");
 
@@ -1266,7 +1242,7 @@
                             if (mBtn) mBtn.classList.add("active");
                         }
                         if (data.active_profile) {
-                            document.querySelectorAll(".profile-tab").forEach(t => t.classList.remove("active"));
+                            document.querySelectorAll(".apple-nav .segmented-tab").forEach(t => t.classList.remove("active"));
                             const pBtn = document.getElementById(`prof_${data.active_profile}`);
                             if (pBtn) pBtn.classList.add("active");
                         }
@@ -1331,12 +1307,12 @@
             const text = document.getElementById("powerText");
 
             if (active) {
-                btn.className = "power-switch on";
+                btn.className = "apple-power on";
                 icon.innerText = "🟢";
                 text.innerText = "פעיל";
                 addLog("זיהוי אקוסטי מופעל", "system");
             } else {
-                btn.className = "power-switch off";
+                btn.className = "apple-power off";
                 icon.innerText = "🔴";
                 text.innerText = "כבוי (לחץ להפעלה)";
                 addLog("זיהוי אקוסטי כבוי כברירת מחדל", "system");
