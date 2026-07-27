@@ -505,7 +505,7 @@ class AudioEngine:
                 dtype='float32',
                 callback=self.audio_callback
             )
-            self stream.start()
+            self.stream.start()
             self.is_running = True
             logger.info("Stereo audio stream started (channels=2).")
         except Exception as e:
