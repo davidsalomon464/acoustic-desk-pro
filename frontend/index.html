@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AcousticDesk Pro - Commercial Spatial Audio Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Rubik:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-obsidian: #080b11;
+            --panel-bg: rgba(17, 24, 39, 0.65);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --panel-border-hover: rgba(255, 255, 255, 0.18);
+            --accent-emerald: #10b981;
+            --accent-indigo: #6366f1;
+            --accent-gold: #f59e0b;
+            --accent-red: #ef4444;
+            --text-primary: #f4f4f5;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', 'Rubik', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-obsidian);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 40%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.06) 0px, transparent 40%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--panel-border);
+            padding: 14px 22px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 7px;
+            margin-left: 6px;
+        }
+
+        .w-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .w-dot.close { background: #ff5f56; }
+        .w-dot.min { background: #ffbd2e; }
+        .w-dot.max { background: #27c93f; }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pro-badge {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, var(--accent-emerald), #059669);
+            color: #022c22;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .header-center {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            padding: 4px;
+            border-radius: 12px;
+            gap: 4px;
+        }
+
+        .profile-tab {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: transparent;
+            border: none;
+        }
+
+        .profile-tab:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .profile-tab.active {
+            background: var(--accent-indigo);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--panel-border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--panel-border-hover);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-emerald), #059669);
+            color: #022c22;
+            border: none;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+            font-weight: 700;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .power-switch {
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+        }
+
+        .power-switch.on {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--accent-emerald);
+            color: var(--accent-emerald);
+        }
+
+        .power-switch.off {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+        }
+
+        .desk-container {
+            background: var(--panel-bg);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .desk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #ffffff;
+        }
+
+        .desk-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 18px;
+            min-height: 480px;
+            position: relative;
+            background: #050811;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .laptop-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130px;
+            height: 85px;
+            background: rgba(24, 24, 27, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            pointer-events: none;
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
+        }
+
+        .laptop-screen {
+            width: 85px;
+            height: 50px;
+            background: #090d16;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .laptop-base {
+            width: 105px;
+            height: 6px;
+            background: #27272a;
+            border-radius: 0 0 6px 6px;
+            margin-top: 4px;
+        }
+
+        .zone-card {
+            background: rgba(24, 24, 27, 0.6);
+            border: 1px solid var(--panel-border);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .zone-card:hover {
+            border-color: var(--panel-border-hover);
+            background: rgba(24, 24, 27, 0.85);
+        }
+
+        .zone-card.triggered-single {
+            border-color: var(--accent-emerald) !important;
+            background: rgba(16, 185, 129, 0.12) !important;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.4) !important;
+            animation: pulseGlow 0.4s ease-out;
+        }
+
+        .zone-card.triggered-double {
+            border-color: var(--accent-indigo) !important;
+            background: rgba(99, 102, 241, 0.15) !important;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5) !important;
+            animation: pulseGlow 0.4s ease-out;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .zone-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .zone-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .zone-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .zone-action-box {
+            background: rgba(9, 13, 22, 0.7);
+            border: 1px solid var(--panel-border);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            margin-top: 6px;
+        }
+
+        .action-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            min-width: 60px;
+        }
+
+        .action-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-emerald);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .zone-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            gap: 6px;
+        }
+
+        .btn-test {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--panel-border);
+            color: var(--text-muted);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-test:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .spatial-rect-screen {
+            width: 100%;
+            height: 170px;
+            background: #050811;
+            border-radius: 14px;
+            border: 1px solid var(--panel-border);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        canvas#acousticGridCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .spatial-status-overlay {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 0.72rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-emerald);
+            background: rgba(9, 13, 22, 0.9);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--panel-border);
+        }
+
+        .log-container {
+            height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .log-item {
+            padding: 6px 10px;
+            background: rgba(9, 13, 22, 0.6);
+            border-right: 3px solid var(--accent-emerald);
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-time {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5, 8, 17, 0.85);
+            backdrop-filter: blur(16px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: #121824;
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            padding: 28px;
+            width: 660px;
+            max-width: 95vw;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .calib-step-box {
+            background: rgba(24, 24, 27, 0.7);
+            border: 1px solid var(--accent-emerald);
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .calib-zone-name {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--accent-emerald);
+        }
+
+        .tap-progress-rings {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tap-ring {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .tap-ring.completed {
+            background: var(--accent-emerald);
+            border-color: var(--accent-emerald);
+            color: #022c22;
+            box-shadow: 0 0 14px var(--accent-emerald);
+        }
+
+        .snr-quality-badge {
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-gold);
+            background: rgba(245, 158, 11, 0.12);
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-top: 4px;
+        }
+
+        select, input[type="text"] {
+            background: #18181b;
+            border: 1px solid var(--panel-border);
+            color: white;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        select:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent-emerald);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 100px 140px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <div class="window-controls">
+                <div class="w-dot close"></div>
+                <div class="w-dot min"></div>
+                <div class="w-dot max"></div>
+            </div>
+            <div class="brand-title">
+                <span>AcousticDesk</span>
+                <span class="pro-badge">PRO</span>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <button class="profile-tab active" id="prof_work" onclick="switchProfile('work')">💼 עבודה</button>
+            <button class="profile-tab" id="prof_media" onclick="switchProfile('media')">🎵 מדיה</button>
+            <button class="profile-tab" id="prof_gaming" onclick="switchProfile('gaming')">⚡ גיימינג</button>
+        </div>
+
+        <div class="header-right">
+            <button class="power-switch off" id="btnTogglePower" onclick="toggleEnginePower()">
+                <span id="powerIcon">🔴</span>
+                <span id="powerText">כבוי (לחץ להפעלה)</span>
+            </button>
+
+            <button class="btn btn-primary" onclick="startWizard()">🎓 כיול שולחן (8 נקישות)</button>
+            <button class="btn" onclick="openActionsModal()">⚙️ הגדרות</button>
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        
+        <div class="desk-container">
+            <div class="desk-header">
+                <div class="section-title">
+                    <span>🖥️</span>
+                    <span>מפת שולחן עבודה אקוסטית (4 פינות - 8 פעולות)</span>
+                </div>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ נקישה בודדת | ⚡ נקישה כפולה</span>
+            </div>
+
+            <div class="desk-matrix">
+                <div class="laptop-center">
+                    <div class="laptop-screen">💻</div>
+                    <div class="laptop-base"></div>
+                </div>
+
+                <div class="zone-card" id="zone_top_left">
+                    <div class="zone-top">
+                        <span class="zone-badge">Top Left</span>
+                        <span class="zone-title">↖️ שמאל למעלה</span>
+                    </div>
+
+                    <div class="zone-action-box">
+                        <span class="action-label">☝️ בודדת:</span>
+                        <span class="action-icon" id="icon_top_left_single">🌐</span>
+                        <span class="action-value" id="val_top_left_single">loading...</span>
+                    </div>
+                    <div class="zone-action-box">
+                        <span class="action-label">⚡ כפולה:</span>
+                        <span class="action-icon" id="icon_top_left_double">🎵</span>
+                        <span class="action-value" id="val_top_left_double">loading...</span>
+                    </div>
+
+                    <div class="zone-bottom">
+                        <button class="btn-test" onclick="testZoneAction('top_left', 'single')">בודדת ☝️</button>
+                        <button class="btn-test" onclick="testZoneAction('top_left', 'double')">כפולה ⚡</button>
+                    </div>
+                </div>
+
+                <div class="zone-card" id="zone_top_right">
+                    <div class="zone-top">
+                        <span class="zone-badge">Top Right</span>
+                        <span class="zone-title">↗️ ימין למעלה</span>
+                    </div>
+
+                    <div class="zone-action-box">
+                        <span class="action-label">☝️ בודדת:</span>
+                        <span class="action-icon" id="icon_top_right_single">🌐</span>
+                        <span class="action-value" id="val_top_right_single">loading...</span>
+                    </div>
+                    <div class="zone-action-box">
+                        <span class="action-label">⚡ כפולה:</span>
+                        <span class="action-icon" id="icon_top_right_double">🎵</span>
+                        <span class="action-value" id="val_top_right_double">loading...</span>
+                    </div>
+
+                    <div class="zone-bottom">
+                        <button class="btn-test" onclick="testZoneAction('top_right', 'single')">בודדת ☝️</button>
+                        <button class="btn-test" onclick="testZoneAction('top_right', 'double')">כפולה ⚡</button>
+                    </div>
+                </div>
+
+                <div class="zone-card" id="zone_bottom_left">
+                    <div class="zone-top">
+                        <span class="zone-badge">Bottom Left</span>
+                        <span class="zone-title">↙️ שמאל למטה</span>
+                    </div>
+
+                    <div class="zone-action-box">
+                        <span class="action-label">☝️ בודדת:</span>
+                        <span class="action-icon" id="icon_bottom_left_single">💻</span>
+                        <span class="action-value" id="val_bottom_left_single">loading...</span>
+                    </div>
+                    <div class="zone-action-box">
+                        <span class="action-label">⚡ כפולה:</span>
+                        <span class="action-icon" id="icon_bottom_left_double">🌙</span>
+                        <span class="action-value" id="val_bottom_left_double">loading...</span>
+                    </div>
+
+                    <div class="zone-bottom">
+                        <button class="btn-test" onclick="testZoneAction('bottom_left', 'single')">בודדת ☝️</button>
+                        <button class="btn-test" onclick="testZoneAction('bottom_left', 'double')">כפולה ⚡</button>
+                    </div>
+                </div>
+
+                <div class="zone-card" id="zone_bottom_right">
+                    <div class="zone-top">
+                        <span class="zone-badge">Bottom Right</span>
+                        <span class="zone-title">↘️ ימין למטה</span>
+                    </div>
+
+                    <div class="zone-action-box">
+                        <span class="action-label">☝️ בודדת:</span>
+                        <span class="action-icon" id="icon_bottom_right_single">💻</span>
+                        <span class="action-value" id="val_bottom_right_single">loading...</span>
+                    </div>
+                    <div class="zone-action-box">
+                        <span class="action-label">⚡ כפולה:</span>
+                        <span class="action-icon" id="icon_bottom_right_double">🔒</span>
+                        <span class="action-value" id="val_bottom_right_double">loading...</span>
+                    </div>
+
+                    <div class="zone-bottom">
+                        <button class="btn-test" onclick="testZoneAction('bottom_right', 'single')">בודדת ☝️</button>
+                        <button class="btn-test" onclick="testZoneAction('bottom_right', 'double')">כפולה ⚡</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="panel">
+                <div class="section-title">
+                    <span>📡</span>
+                    <span>מסך אינדיקטיבי - מיקום נקישה בלייב</span>
+                </div>
+                
+                <div class="spatial-rect-screen">
+                    <canvas id="acousticGridCanvas"></canvas>
+                    <div class="spatial-status-overlay" id="spatialStatusOverlay">ממתין לנקישה...</div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
+                        <span>סף רגישות (Threshold)</span>
+                        <!-- Updated default sensitivity text display to 0.045 -->
+                        <span id="threshVal" style="color: var(--accent-emerald); font-weight: bold;">0.045</span>
+                    </div>
+                    <!-- Updated slider range to min 0.01 max 0.15 step 0.005 default 0.045 -->
+                    <input type="range" id="sensitivitySlider" min="0.01" max="0.15" step="0.005" value="0.045" oninput="updateSensitivity(this.value)" style="width: 100%; accent-color: var(--accent-emerald);">
+                </div>
+            </div>
+
+            <div class="panel" style="flex: 1;">
+                <div class="section-title">
+                    <span>📜</span>
+                    <span>יומן פעילות</span>
+                </div>
+                <div class="log-container" id="logFeed">
+                    <div class="log-item">
+                        <span>AcousticDesk Pro מוכן (סף רגישות מורם: 0.045)</span>
+                        <span class="log-time">עכשיו</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Acoustic Calibration Wizard Modal -->
+    <div class="modal-overlay" id="calibModal">
+        <div class="modal">
+            <div class="modal-title">🎓 אשף כיול מסחרי (8 נקישות בכל פינה)</div>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                לדיוק מוחלט, נקש באצבע 8 פעמים בכל פינה בשולחן בקצב נורמלי.
+            </p>
+
+            <div class="calib-step-box">
+                <span style="font-size: 0.8rem; color: var(--text-muted);" id="calibStepHeader">שלב 1 מתוך 4</span>
+                <div class="calib-zone-name" id="calibTargetZoneName">↗️ ימין למעלה</div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);" id="calibInstructionText">נקש עכשיו 8 פעמים בפינה המבוקשת בשולחן</p>
+                
+                <div class="tap-progress-rings" id="tapRings">
+                    <div class="tap-ring">1</div>
+                    <div class="tap-ring">2</div>
+                    <div class="tap-ring">3</div>
+                    <div class="tap-ring">4</div>
+                    <div class="tap-ring">5</div>
+                    <div class="tap-ring">6</div>
+                    <div class="tap-ring">7</div>
+                    <div class="tap-ring">8</div>
+                </div>
+
+                <div class="snr-quality-badge" id="calibQualityBadge">⚡ איכות נקישה: --%</div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="btn" onclick="closeCalibModal()">ביטול כיול</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Settings Modal -->
+    <div class="modal-overlay" id="actionsModal">
+        <div class="modal">
+            <div class="modal-title">⚙️ הגדרת 8 פעולות (נקישה בודדת ☝️ וכפולה ⚡)</div>
+            
+            <div style="display: flex; flex-direction: column; gap: 16px; max-height: 440px; overflow-y: auto; padding-right: 4px;">
+                
+                <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="font-weight: bold; color: var(--accent-emerald);">↖️ שמאל למעלה (Top Left)</div>
+                    <div class="form-row">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
+                        <select id="cfg_single_type_top_left">
+                            <option value="url">אתר (URL)</option>
+                            <option value="app">אפליקציה (App)</option>
+                            <option value="cmd">פקודה</option>
+                            <option value="shortcut">מערכת / קיצור</option>
+                        </select>
+                        <input type="text" id="cfg_single_val_top_left" placeholder="https://google.com">
+                    </div>
+                    <div class="form-row">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">⚡ כפולה:</span>
+                        <select id="cfg_double_type_top_left">
+                            <option value="shortcut">מערכת / קיצור</option>
+                            <option value="url">אתר (URL)</option>
+                            <option value="app">אפליקציה (App)</option>
+                            <option value="cmd">פקודה</option>
+                        </select>
+                        <input type="text" id="cfg_double_val_top_left" placeholder="volume_up / Spotify">
+                    </div>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="font-weight: bold; color: var(--accent-emerald);">↗️ ימין למעלה (Top Right)</div>
+                    <div class="form-row">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
+                        <select id="cfg_single_type_top_right">
+                            <option value="url">אתר (URL)</option>
+                            <option value="app">אפליקציה (App)</option>
+                            <option value="cmd">פקודה</option>
+                            <option value="shortcut">מערכת / קיצור</option>
+                        </select>
+                        <input type="text" id="cfg_single_val_top_right" placeholder="https://youtube.com">
+                    </div>
+                    <div class="form-row">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">⚡ כפולה:</span>
+                        <select id="cfg_double_type_top_right">
+                            <option value="shortcut">מערכת / קיצור</option>
+                            <option value="url">אתר (URL)</option>
+                            <option value="app">אפליקציה (App)</option>
+                            <option value="cmd">פקודה</option>
+                        </select>
+                        <input type="text" id="cfg_double_val_top_right" placeholder="mute / Calculator">
+                    </div>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="font-weight: bold; color: var(--accent-emerald);">↙️ שמאל למטה (Bottom Left)</div>
+                    <div class="form-row">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
+                        <select id="cfg_single_type_bottom_left">
+                            <option value="app">אפליקציה (App)</option>
+                            <option value="url">אתר (URL)</option>
+                            <option value="cmd">פקודה</option>
+                            <option value="shortcut">מערכת / קיצור</option>
+                        </select>
+                        <input type="text" id="cfg_single_val_bottom_left" placeholder="Calculator">
+                    </div>
+                    <div class="form-row">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">⚡ כפולה:</span>
+                        <select id="cfg_double_type_bottom_left">
+                            <option value="shortcut">מערכת / קיצור</option>
+                            <option value="url">אתר (URL)</option>
+                            <option value="app">אפליקציה (App)</option>
+                            <option value="cmd">פקודה</option>
+                        </select>
+                        <input type="text" id="cfg_double_val_bottom_left" placeholder="sleep / lock_screen">
+                    </div>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 12px; display: flex; flex-direction: column; gap: 10px;">
+                    <div style="font-weight: bold; color: var(--accent-emerald);">↘️ ימין למטה (Bottom Right)</div>
+                    <div class="form-row">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">☝️ בודדת:</span>
+                        <select id="cfg_single_type_bottom_right">
+                            <option value="app">אפליקציה (App)</option>
+                            <option value="url">אתר (URL)</option>
+                            <option value="cmd">פקודה</option>
+                            <option value="shortcut">מערכת / קיצור</option>
+                        </select>
+                        <input type="text" id="cfg_single_val_bottom_right" placeholder="Notes">
+                    </div>
+                    <div class="form-row">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">⚡ כפולה:</span>
+                        <select id="cfg_double_type_bottom_right">
+                            <option value="shortcut">מערכת / קיצור</option>
+                            <option value="url">אתר (URL)</option>
+                            <option value="app">אפליקציה (App)</option>
+                            <option value="cmd">פקודה</option>
+                        </select>
+                        <input type="text" id="cfg_double_val_bottom_right" placeholder="lock_screen / shutdown_computer">
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+                <button class="btn" onclick="closeActionsModal()">ביטול</button>
+                <button class="btn btn-primary" onclick="saveActionsConfig()">שמור הגדרות</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ZONES_ORDER = ["top_left", "top_right", "bottom_left", "bottom_right"];
+        const ZONE_NAMES = {
+            "top_left": "↖️ שמאל למעלה",
+            "top_right": "↗️ ימין למעלה",
+            "bottom_left": "↙️ שמאל למטה",
+            "bottom_right": "↘️ ימין למטה"
+        };
+
+        const ZONE_COORDS_NORM = {
+            "top_left": { x: 0.25, y: 0.25 },
+            "top_right": { x: 0.75, y: 0.25 },
+            "bottom_left": { x: 0.25, y: 0.75 },
+            "bottom_right": { x: 0.75, y: 0.75 }
+        };
+
+        function getApiBaseUrl() {
+            if (window.location.origin && window.location.origin !== "null" && window.location.origin !== "file://" && window.location.protocol.startsWith("http")) {
+                return "";
+            }
+            return "http://127.0.0.1:8000";
+        }
+
+        function getWsUrl() {
+            const host = (window.location.host && window.location.host !== "") ? window.location.host : "127.0.0.1:8000";
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            return `${protocol}//${host}/ws`;
+        }
+
+        let ws = null;
+        let actionsState = {};
+        let currentCalibIndex = 0;
+        let isWizardActive = false;
+        let isEngineActive = false;
+        let micAudioContext = null;
+        let lastWebTapTime = 0;
+
+        let activeRipples = [];
+        let activeSpatialZone = null;
+
+        const gridCanvas = document.getElementById("acousticGridCanvas");
+        const gCtx = gridCanvas.getContext("2d");
+        let waveformBuffer = new Array(60).fill(0);
+
+        function resizeGridCanvas() {
+            gridCanvas.width = gridCanvas.parentElement.clientWidth;
+            gridCanvas.height = gridCanvas.parentElement.clientHeight;
+        }
+        window.addEventListener("resize", resizeGridCanvas);
+        resizeGridCanvas();
+
+        function drawIndicativeSpatialScreen() {
+            const w = gridCanvas.width;
+            const h = gridCanvas.height;
+            gCtx.clearRect(0, 0, w, h);
+
+            gCtx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+            gCtx.lineWidth = 1;
+            
+            gCtx.beginPath();
+            gCtx.moveTo(w / 2, 0);
+            gCtx.lineTo(w / 2, h);
+            gCtx.moveTo(0, h / 2);
+            gCtx.lineTo(w, h / 2);
+            gCtx.stroke();
+
+            for (const z of ZONES_ORDER) {
+                const coord = ZONE_COORDS_NORM[z];
+                const cx = coord.x * w;
+                const cy = coord.y * h;
+
+                if (activeSpatialZone === z) {
+                    gCtx.fillStyle = "rgba(16, 185, 129, 0.15)";
+                    const rx = (coord.x < 0.5) ? 0 : w / 2;
+                    const ry = (coord.y < 0.5) ? 0 : h / 2;
+                    gCtx.fillRect(rx, ry, w / 2, h / 2);
+                }
+
+                gCtx.fillStyle = (activeSpatialZone === z) ? "#10b981" : "rgba(255, 255, 255, 0.25)";
+                gCtx.beginPath();
+                gCtx.arc(cx, cy, 5, 0, Math.PI * 2);
+                gCtx.fill();
+            }
+
+            const lWidth = 60;
+            const lHeight = 36;
+            const lx = (w - lWidth) / 2;
+            const ly = (h - lHeight) / 2;
+            gCtx.fillStyle = "rgba(24, 24, 27, 0.95)";
+            gCtx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+            gCtx.lineWidth = 1.5;
+            gCtx.beginPath();
+            gCtx.roundRect(lx, ly, lWidth, lHeight, 6);
+            gCtx.fill();
+            gCtx.stroke();
+            gCtx.fillStyle = "#a1a1aa";
+            gCtx.font = "12px sans-serif";
+            gCtx.textAlign = "center";
+            gCtx.textBaseline = "middle";
+            gCtx.fillText("💻", w / 2, h / 2);
+
+            gCtx.strokeStyle = isEngineActive ? "rgba(16, 185, 129, 0.5)" : "rgba(113, 113, 122, 0.4)";
+            gCtx.lineWidth = 1.5;
+            gCtx.beginPath();
+            const sliceWidth = w / waveformBuffer.length;
+            let wx = 0;
+            for (let i = 0; i < waveformBuffer.length; i++) {
+                const v = waveformBuffer[i];
+                const wy = h - 22 + (v * 16);
+                if (i === 0) gCtx.moveTo(wx, wy);
+                else gCtx.lineTo(wx, wy);
+                wx += sliceWidth;
+            }
+            gCtx.stroke();
+
+            const now = Date.now();
+            for (let i = activeRipples.length - 1; i >= 0; i--) {
+                const r = activeRipples[i];
+                const elapsed = (now - r.startTime) / 1000.0;
+                if (elapsed > 0.8) {
+                    activeRipples.splice(i, 1);
+                    continue;
+                }
+
+                const alpha = Math.max(0, 1 - (elapsed / 0.8));
+                const radius = 10 + (elapsed * 45);
+
+                gCtx.strokeStyle = r.isDouble ? `rgba(99, 102, 241, ${alpha})` : `rgba(16, 185, 129, ${alpha})`;
+                gCtx.lineWidth = 2.5;
+                gCtx.beginPath();
+                gCtx.arc(r.x, r.y, radius, 0, Math.PI * 2);
+                gCtx.stroke();
+
+                gCtx.fillStyle = r.isDouble ? `rgba(99, 102, 241, ${alpha})` : `rgba(16, 185, 129, ${alpha})`;
+                gCtx.beginPath();
+                gCtx.arc(r.x, r.y, 7, 0, Math.PI * 2);
+                gCtx.fill();
+            }
+
+            requestAnimationFrame(drawIndicativeSpatialScreen);
+        }
+        requestAnimationFrame(drawIndicativeSpatialScreen);
+
+        function triggerSpatialScreenRipple(zone, confidence, mode = "single") {
+            activeSpatialZone = zone;
+            const coord = ZONE_COORDS_NORM[zone] || { x: 0.5, y: 0.5 };
+            const rx = coord.x * gridCanvas.width;
+            const ry = coord.y * gridCanvas.height;
+
+            activeRipples.push({
+                x: rx,
+                y: ry,
+                startTime: Date.now(),
+                isDouble: mode === "double"
+            });
+
+            const statusEl = document.getElementById("spatialStatusOverlay");
+            if (statusEl) {
+                statusEl.innerText = `נזוקה: ${ZONE_NAMES[zone]} (${Math.round(confidence * 100)}%)`;
+                statusEl.style.borderColor = (mode === "double") ? "var(--accent-indigo)" : "var(--accent-emerald)";
+            }
+
+            setTimeout(() => {
+                if (activeSpatialZone === zone) {
+                    activeSpatialZone = null;
+                }
+            }, 800);
+        }
+
+        function switchProfile(profileKey) {
+            document.querySelectorAll(".profile-tab").forEach(t => t.classList.remove("active"));
+            const btn = document.getElementById(`prof_${profileKey}`);
+            if (btn) btn.classList.add("active");
+
+            fetch(getApiBaseUrl() + `/api/profile/${profileKey}`, { method: "POST" })
+                .then(r => r.json())
+                .then(data => {
+                    renderActions(data.actions);
+                    addLog(`הוחלף פרופיל פעילות ל: ${profileKey}`, "system");
+                });
+        }
+
+        function playChime(freq = 587.33) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch(e){}
+        }
+
+        function requestMicPermissionPrompt() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    addLog("🎙️ הרשאת מיקרופון אושרה בדפדפן בהצלחה!", "system");
+                    startBrowserAudioProcessing(stream);
+                })
+                .catch(err => {
+                    addLog(`שגיאה בגישה למיקרופון בדפדפן: ${err.message}`, "system");
+                });
+        }
+
+        function startBrowserAudioProcessing(stream) {
+            if (micAudioContext) return;
+            micAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const source = micAudioContext.createMediaStreamSource(stream);
+            const processor = micAudioContext.createScriptProcessor(1024, 1, 1);
+
+            processor.onaudioprocess = (e) => {
+                if (!isEngineActive) return;
+                const input = e.inputBuffer.getChannelData(0);
+                const samples = Array.from(input);
+
+                waveformBuffer = samples.slice(0, 60);
+
+                let rms = 0;
+                let peak = 0;
+                for (let s of samples) {
+                    const absS = Math.abs(s);
+                    if (absS > peak) peak = absS;
+                    rms += s * s;
+                }
+                rms = Math.sqrt(rms / samples.length);
+
+                const thresh = parseFloat(document.getElementById("sensitivitySlider").value);
+                const now = Date.now();
+
+                if (peak > thresh && (now - lastWebTapTime > 250)) {
+                    lastWebTapTime = now;
+                    fetch(getApiBaseUrl() + "/api/process_web_tap", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ samples: samples })
+                    });
+                }
+            };
+
+            source.connect(processor);
+            processor.connect(micAudioContext.destination);
+        }
+
+        function connectWebSocket() {
+            ws = new WebSocket(getWsUrl());
+
+            ws.onopen = () => {
+                addLog("מחובר לשרת בהצלחה", "system");
+                requestMicPermissionPrompt();
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (data.event === "audio_frame") {
+                    if (data.waveform && data.waveform.length > 0) {
+                        waveformBuffer = data.waveform;
+                    }
+                } else if (data.event === "init_status") {
+                    updatePowerStateUI(data.is_listening_active);
+                    updateSensitivityUI(data.sensitivity);
+                    if (data.active_profile) {
+                        document.querySelectorAll(".profile-tab").forEach(t => t.classList.remove("active"));
+                        const pBtn = document.getElementById(`prof_${data.active_profile}`);
+                        if (pBtn) pBtn.classList.add("active");
+                    }
+                    renderActions(data.actions);
+                } else if (data.event === "tap_detected") {
+                    handleTapEvent(data);
+                } else if (data.event === "calib_progress") {
+                    handleCalibProgress(data);
+                } else if (data.event === "calib_finished") {
+                    addLog("כיול מורחב הושלם בהצלחה!", "system");
+                    playChime(880);
+                } else if (data.event === "engine_toggled") {
+                    updatePowerStateUI(data.is_listening_active);
+                }
+            };
+
+            ws.onclose = () => {
+                setTimeout(connectWebSocket, 2000);
+            };
+        }
+
+        function toggleEnginePower() {
+            fetch(getApiBaseUrl() + "/api/toggle_engine", { method: "POST" })
+                .then(r => r.json())
+                .then(data => {
+                    updatePowerStateUI(data.is_listening_active);
+                });
+        }
+
+        function updatePowerStateUI(active) {
+            isEngineActive = active;
+            const btn = document.getElementById("btnTogglePower");
+            const icon = document.getElementById("powerIcon");
+            const text = document.getElementById("powerText");
+
+            if (active) {
+                btn.className = "power-switch on";
+                icon.innerText = "🟢";
+                text.innerText = "פעיל";
+                addLog("זיהוי אקוסטי מופעל", "system");
+            } else {
+                btn.className = "power-switch off";
+                icon.innerText = "🔴";
+                text.innerText = "כבוי (לחץ להפעלה)";
+                addLog("זיהוי אקוסטי כבוי כברירת מחדל", "system");
+            }
+        }
+
+        function updateSensitivityUI(val) {
+            document.getElementById("sensitivitySlider").value = val;
+            document.getElementById("threshVal").innerText = val;
+        }
+
+        function updateSensitivity(val) {
+            document.getElementById("threshVal").innerText = val;
+            fetch(getApiBaseUrl() + "/api/sensitivity", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sensitivity: parseFloat(val) })
+            });
+        }
+
+        function getActionIcon(act) {
+            if (!act || !act.value) return "⚪";
+            if (act.type === "app") return "💻";
+            if (act.type === "cmd") return "⚡";
+            if (act.type === "shortcut" || act.type === "system") {
+                if (act.value === "sleep") return "🌙";
+                if (act.value === "lock_screen") return "🔒";
+                if (act.value === "shutdown_computer") return "⏻";
+                return "🎵";
+            }
+            return "🌐";
+        }
+
+        function renderActions(actions) {
+            actionsState = actions;
+            for (const zone of ZONES_ORDER) {
+                const zData = actions[zone] || {};
+                const singleAct = zData.single || {};
+                const doubleAct = zData.double || {};
+
+                document.getElementById(`val_${zone}_single`).innerText = singleAct.value || "לא מוגדר";
+                document.getElementById(`icon_${zone}_single`).innerText = getActionIcon(singleAct);
+
+                document.getElementById(`val_${zone}_double`).innerText = doubleAct.value || "לא מוגדר";
+                document.getElementById(`icon_${zone}_double`).innerText = getActionIcon(doubleAct);
+
+                if (document.getElementById(`cfg_single_type_${zone}`)) {
+                    document.getElementById(`cfg_single_type_${zone}`).value = singleAct.type || "url";
+                    document.getElementById(`cfg_single_val_${zone}`).value = singleAct.value || "";
+                    document.getElementById(`cfg_double_type_${zone}`).value = doubleAct.type || "shortcut";
+                    document.getElementById(`cfg_double_val_${zone}`).value = doubleAct.value || "";
+                }
+            }
+        }
+
+        function handleTapEvent(data) {
+            const card = document.getElementById(`zone_${data.zone}`);
+            if (card) {
+                const cls = data.mode === "double" ? "triggered-double" : "triggered-single";
+                card.classList.add(cls);
+                setTimeout(() => card.classList.remove(cls), 650);
+            }
+            triggerSpatialScreenRipple(data.zone, data.confidence, data.mode);
+            playChime(data.mode === "double" ? 880 : 659.25);
+            addLog(`זיהוי: ${data.zone_name} [${data.mode_name}] (${Math.round(data.confidence * 100)}%) -> ${data.action.value}`, "tap");
+        }
+
+        function addLog(msg, type = "info") {
+            const feed = document.getElementById("logFeed");
+            const timeStr = new Date().toLocaleTimeString('he-IL');
+            const item = document.createElement("div");
+            item.className = "log-item";
+            item.innerHTML = `<span>${msg}</span><span class="log-time">${timeStr}</span>`;
+            feed.prepend(item);
+
+            if (feed.children.length > 20) {
+                feed.removeChild(feed.lastChild);
+            }
+        }
+
+        function testZoneAction(zone, mode = "single") {
+            fetch(getApiBaseUrl() + `/api/test_action/${zone}/${mode}`, { method: "POST" })
+                .then(r => r.json())
+                .then(res => {
+                    const card = document.getElementById(`zone_${zone}`);
+                    const cls = mode === "double" ? "triggered-double" : "triggered-single";
+                    card.classList.add(cls);
+                    setTimeout(() => card.classList.remove(cls), 600);
+                    triggerSpatialScreenRipple(zone, 0.99, mode);
+                    playChime(523.25);
+                    addLog(`בדיקה ידנית [${mode === "double" ? "נקישה כפולה" : "נקישה בודדת"}]: ${ZONE_NAMES[zone]} -> ${res.message}`, "test");
+                });
+        }
+
+        function startWizard() {
+            if (!isEngineActive) {
+                toggleEnginePower();
+            }
+            isWizardActive = true;
+            currentCalibIndex = 0;
+            document.getElementById("calibModal").classList.add("active");
+            startCalibStep(ZONES_ORDER[0]);
+        }
+
+        function startCalibStep(zone) {
+            const zoneName = ZONE_NAMES[zone];
+            document.getElementById("calibStepHeader").innerText = `שלב ${currentCalibIndex + 1} מתוך 4`;
+            document.getElementById("calibTargetZoneName").innerText = zoneName;
+            document.getElementById("calibInstructionText").innerText = `נקש עכשיו 8 פעמים באזור ${zoneName} בשולחן`;
+            
+            const rings = document.querySelectorAll("#tapRings .tap-ring");
+            rings.forEach((r, idx) => {
+                r.classList.remove("completed");
+                r.innerText = idx + 1;
+            });
+
+            document.getElementById("calibQualityBadge").innerText = "⚡ איכות נקישה: ממתין לסיגנל...";
+
+            fetch(getApiBaseUrl() + "/api/calibration/start", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ zone: zone })
+            });
+        }
+
+        function handleCalibProgress(data) {
+            if (!isWizardActive) return;
+            const rings = document.querySelectorAll("#tapRings .tap-ring");
+            if (rings[data.count - 1]) {
+                rings[data.count - 1].classList.add("completed");
+                rings[data.count - 1].innerText = "✓";
+                triggerSpatialScreenRipple(data.zone, 1.0, "single");
+                playChime(440 + (data.count * 60));
+            }
+
+            if (data.quality) {
+                document.getElementById("calibQualityBadge").innerText = `⚡ איכות נקישה: ${data.quality}% (מעולה)`;
+            }
+
+            if (data.count >= data.total) {
+                setTimeout(() => {
+                    currentCalibIndex++;
+                    if (currentCalibIndex < ZONES_ORDER.length) {
+                        startCalibStep(ZONES_ORDER[currentCalibIndex]);
+                    } else {
+                        fetch(getApiBaseUrl() + "/api/calibration/finish", { method: "POST" })
+                            .then(() => {
+                                closeCalibModal();
+                            });
+                    }
+                }, 500);
+            }
+        }
+
+        function closeCalibModal() {
+            isWizardActive = false;
+            document.getElementById("calibModal").classList.remove("active");
+        }
+
+        function openActionsModal() {
+            renderActions(actionsState);
+            document.getElementById("actionsModal").classList.add("active");
+        }
+
+        function closeActionsModal() {
+            document.getElementById("actionsModal").classList.remove("active");
+        }
+
+        function saveActionsConfig() {
+            const updated = {
+                top_left: {
+                    name: ZONE_NAMES["top_left"],
+                    single: {
+                        type: document.getElementById("cfg_single_type_top_left").value,
+                        value: document.getElementById("cfg_single_val_top_left").value
+                    },
+                    double: {
+                        type: document.getElementById("cfg_double_type_top_left").value,
+                        value: document.getElementById("cfg_double_val_top_left").value
+                    }
+                },
+                top_right: {
+                    name: ZONE_NAMES["top_right"],
+                    single: {
+                        type: document.getElementById("cfg_single_type_top_right").value,
+                        value: document.getElementById("cfg_single_val_top_right").value
+                    },
+                    double: {
+                        type: document.getElementById("cfg_double_type_top_right").value,
+                        value: document.getElementById("cfg_double_val_top_right").value
+                    }
+                },
+                bottom_left: {
+                    name: ZONE_NAMES["bottom_left"],
+                    single: {
+                        type: document.getElementById("cfg_single_type_bottom_left").value,
+                        value: document.getElementById("cfg_single_val_bottom_left").value
+                    },
+                    double: {
+                        type: document.getElementById("cfg_double_type_bottom_left").value,
+                        value: document.getElementById("cfg_double_val_bottom_left").value
+                    }
+                },
+                bottom_right: {
+                    name: ZONE_NAMES["bottom_right"],
+                    single: {
+                        type: document.getElementById("cfg_single_type_bottom_right").value,
+                        value: document.getElementById("cfg_single_val_bottom_right").value
+                    },
+                    double: {
+                        type: document.getElementById("cfg_double_type_bottom_right").value,
+                        value: document.getElementById("cfg_double_val_bottom_right").value
+                    }
+                }
+            };
+
+            fetch(getApiBaseUrl() + "/api/actions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ actions: updated })
+            })
+            .then(r => r.json())
+            .then(data => {
+                renderActions(data.actions);
+                closeActionsModal();
+                addLog("הגדרות 8 הפעולות עודכנו בהצלחה", "system");
+            });
+        }
+
+        connectWebSocket();
+    </script>
+</body>
+</html>

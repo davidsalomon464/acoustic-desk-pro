@@ -1,0 +1,22 @@
+{
+  "top_left": {
+    "name": "↖️ שמאל למעלה",
+    "type": "url",
+    "value": "https://music.youtube.com/"
+  },
+  "top_right": {
+    "name": "↗️ ימין למעלה",
+    "type": "url",
+    "value": "https://youtube.com"
+  },
+  "bottom_left": {
+    "name": "↙️ שמאל למטה",
+    "type": "app",
+    "value": "Calculator"
+  },
+  "bottom_right": {
+    "name": "↘️ ימין למטה",
+    "type": "url",
+    "value": "https://mail.google.com/mail/u/0/#inbox"
+  }
+}
