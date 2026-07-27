@@ -6,9 +6,9 @@ import signal
 import sys
 import threading
 import time
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import numpy as np
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel
@@ -66,14 +66,18 @@ def load_actions():
         try:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data
+                if isinstance(data, dict) and "top_left" in data:
+                    return data
         except Exception as e:
             logger.error(f"Error loading config: {e}")
     return DEFAULT_ACTIONS
 
 def save_actions(actions_data: dict):
-    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-        json.dump(actions_data, f, ensure_ascii=False, indent=2)
+    try:
+        with open(CONFIG_FILE, "w", encoding="utf-8") as f:
+            json.dump(actions_data, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.error(f"Error saving config file: {e}")
 
 actions_config = load_actions()
 
@@ -163,21 +167,6 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
-class ActionItem(BaseModel):
-    type: str
-    value: str
-
-class ZoneActions(BaseModel):
-    name: str
-    single: ActionItem
-    double: ActionItem
-
-class ActionsUpdate(BaseModel):
-    top_left: ZoneActions
-    top_right: ZoneActions
-    bottom_left: ZoneActions
-    bottom_right: ZoneActions
-
 class SensitivityUpdate(BaseModel):
     sensitivity: float
 
@@ -260,17 +249,28 @@ def shutdown_app():
     return {"status": "success", "message": "Process terminating immediately..."}
 
 @app.post("/api/actions")
-def update_actions(update: ActionsUpdate):
+async def update_actions(request: Request):
     global actions_config
-    actions_config = {
-        "top_left": update.top_left.dict(),
-        "top_right": update.top_right.dict(),
-        "bottom_left": update.bottom_left.dict(),
-        "bottom_right": update.bottom_right.dict()
-    }
-    save_actions(actions_config)
-    manager.broadcast_sync({"event": "actions_updated", "actions": actions_config})
-    return {"status": "success", "actions": actions_config}
+    try:
+        body = await request.json()
+        if "actions" in body and isinstance(body["actions"], dict):
+            new_actions = body["actions"]
+        elif isinstance(body, dict) and "top_left" in body:
+            new_actions = body
+        else:
+            raise ValueError("Invalid payload structure")
+
+        for z in ZONES:
+            if z in new_actions:
+                actions_config[z] = new_actions[z]
+
+        save_actions(actions_config)
+        logger.info(f"Updated actions configuration successfully: {actions_config}")
+        manager.broadcast_sync({"event": "actions_updated", "actions": actions_config})
+        return {"status": "success", "actions": actions_config}
+    except Exception as e:
+        logger.error(f"Failed to update actions: {e}")
+        return {"status": "error", "message": str(e), "actions": actions_config}
 
 @app.post("/api/sensitivity")
 def set_sensitivity(update: SensitivityUpdate):

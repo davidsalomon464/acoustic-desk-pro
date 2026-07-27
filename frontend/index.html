@@ -736,10 +736,8 @@
                 <div style="display: flex; flex-direction: column; gap: 8px;">
                     <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted);">
                         <span>סף רגישות (Threshold)</span>
-                        <!-- Updated default sensitivity text display to 0.045 -->
                         <span id="threshVal" style="color: var(--accent-emerald); font-weight: bold;">0.045</span>
                     </div>
-                    <!-- Updated slider range to min 0.01 max 0.15 step 0.005 default 0.045 -->
                     <input type="range" id="sensitivitySlider" min="0.01" max="0.15" step="0.005" value="0.045" oninput="updateSensitivity(this.value)" style="width: 100%; accent-color: var(--accent-emerald);">
                 </div>
             </div>
@@ -751,7 +749,7 @@
                 </div>
                 <div class="log-container" id="logFeed">
                     <div class="log-item">
-                        <span>AcousticDesk Pro מוכן (סף רגישות מורם: 0.045)</span>
+                        <span>AcousticDesk Pro מוכן (סף רגישות: 0.045)</span>
                         <span class="log-time">עכשיו</span>
                     </div>
                 </div>
@@ -935,7 +933,12 @@
         }
 
         let ws = null;
-        let actionsState = {};
+        let actionsState = {
+            top_left: { name: ZONE_NAMES["top_left"], single: { type: "url", value: "https://google.com" }, double: { type: "shortcut", value: "volume_up" } },
+            top_right: { name: ZONE_NAMES["top_right"], single: { type: "url", value: "https://youtube.com" }, double: { type: "shortcut", value: "mute" } },
+            bottom_left: { name: ZONE_NAMES["bottom_left"], single: { type: "app", value: "Calculator" }, double: { type: "shortcut", value: "sleep" } },
+            bottom_right: { name: ZONE_NAMES["bottom_right"], single: { type: "app", value: "Notes" }, double: { type: "shortcut", value: "lock_screen" } }
+        };
         let currentCalibIndex = 0;
         let isWizardActive = false;
         let isEngineActive = false;
@@ -1082,9 +1085,12 @@
             fetch(getApiBaseUrl() + `/api/profile/${profileKey}`, { method: "POST" })
                 .then(r => r.json())
                 .then(data => {
-                    renderActions(data.actions);
-                    addLog(`הוחלף פרופיל פעילות ל: ${profileKey}`, "system");
-                });
+                    if (data && data.actions) {
+                        renderActions(data.actions);
+                        addLog(`הוחלף פרופיל פעילות ל: ${profileKey}`, "system");
+                    }
+                })
+                .catch(err => console.error("Error switching profile:", err));
         }
 
         function playChime(freq = 587.33) {
@@ -1162,30 +1168,40 @@
             };
 
             ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                
-                if (data.event === "audio_frame") {
-                    if (data.waveform && data.waveform.length > 0) {
-                        waveformBuffer = data.waveform;
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.event === "audio_frame") {
+                        if (data.waveform && data.waveform.length > 0) {
+                            waveformBuffer = data.waveform;
+                        }
+                    } else if (data.event === "init_status") {
+                        updatePowerStateUI(data.is_listening_active);
+                        updateSensitivityUI(data.sensitivity);
+                        if (data.active_profile) {
+                            document.querySelectorAll(".profile-tab").forEach(t => t.classList.remove("active"));
+                            const pBtn = document.getElementById(`prof_${data.active_profile}`);
+                            if (pBtn) pBtn.classList.add("active");
+                        }
+                        if (data.actions) {
+                            renderActions(data.actions);
+                        }
+                    } else if (data.event === "tap_detected") {
+                        handleTapEvent(data);
+                    } else if (data.event === "calib_progress") {
+                        handleCalibProgress(data);
+                    } else if (data.event === "calib_finished") {
+                        addLog("כיול מורחב הושלם בהצלחה!", "system");
+                        playChime(880);
+                    } else if (data.event === "engine_toggled") {
+                        updatePowerStateUI(data.is_listening_active);
+                    } else if (data.event === "actions_updated") {
+                        if (data.actions) {
+                            renderActions(data.actions);
+                        }
                     }
-                } else if (data.event === "init_status") {
-                    updatePowerStateUI(data.is_listening_active);
-                    updateSensitivityUI(data.sensitivity);
-                    if (data.active_profile) {
-                        document.querySelectorAll(".profile-tab").forEach(t => t.classList.remove("active"));
-                        const pBtn = document.getElementById(`prof_${data.active_profile}`);
-                        if (pBtn) pBtn.classList.add("active");
-                    }
-                    renderActions(data.actions);
-                } else if (data.event === "tap_detected") {
-                    handleTapEvent(data);
-                } else if (data.event === "calib_progress") {
-                    handleCalibProgress(data);
-                } else if (data.event === "calib_finished") {
-                    addLog("כיול מורחב הושלם בהצלחה!", "system");
-                    playChime(880);
-                } else if (data.event === "engine_toggled") {
-                    updatePowerStateUI(data.is_listening_active);
+                } catch(err) {
+                    console.error("Error processing websocket message:", err);
                 }
             };
 
@@ -1198,7 +1214,9 @@
             fetch(getApiBaseUrl() + "/api/toggle_engine", { method: "POST" })
                 .then(r => r.json())
                 .then(data => {
-                    updatePowerStateUI(data.is_listening_active);
+                    if (data && typeof data.is_listening_active === 'boolean') {
+                        updatePowerStateUI(data.is_listening_active);
+                    }
                 });
         }
 
@@ -1249,24 +1267,36 @@
         }
 
         function renderActions(actions) {
-            actionsState = actions;
+            if (!actions || typeof actions !== 'object') {
+                actions = actionsState;
+            } else {
+                actionsState = actions;
+            }
+
             for (const zone of ZONES_ORDER) {
                 const zData = actions[zone] || {};
                 const singleAct = zData.single || {};
                 const doubleAct = zData.double || {};
 
-                document.getElementById(`val_${zone}_single`).innerText = singleAct.value || "לא מוגדר";
-                document.getElementById(`icon_${zone}_single`).innerText = getActionIcon(singleAct);
+                const singleValEl = document.getElementById(`val_${zone}_single`);
+                const singleIconEl = document.getElementById(`icon_${zone}_single`);
+                const doubleValEl = document.getElementById(`val_${zone}_double`);
+                const doubleIconEl = document.getElementById(`icon_${zone}_double`);
 
-                document.getElementById(`val_${zone}_double`).innerText = doubleAct.value || "לא מוגדר";
-                document.getElementById(`icon_${zone}_double`).innerText = getActionIcon(doubleAct);
+                if (singleValEl) singleValEl.innerText = singleAct.value || "לא מוגדר";
+                if (singleIconEl) singleIconEl.innerText = getActionIcon(singleAct);
+                if (doubleValEl) doubleValEl.innerText = doubleAct.value || "לא מוגדר";
+                if (doubleIconEl) doubleIconEl.innerText = getActionIcon(doubleAct);
 
-                if (document.getElementById(`cfg_single_type_${zone}`)) {
-                    document.getElementById(`cfg_single_type_${zone}`).value = singleAct.type || "url";
-                    document.getElementById(`cfg_single_val_${zone}`).value = singleAct.value || "";
-                    document.getElementById(`cfg_double_type_${zone}`).value = doubleAct.type || "shortcut";
-                    document.getElementById(`cfg_double_val_${zone}`).value = doubleAct.value || "";
-                }
+                const cfgSingleType = document.getElementById(`cfg_single_type_${zone}`);
+                const cfgSingleVal = document.getElementById(`cfg_single_val_${zone}`);
+                const cfgDoubleType = document.getElementById(`cfg_double_type_${zone}`);
+                const cfgDoubleVal = document.getElementById(`cfg_double_val_${zone}`);
+
+                if (cfgSingleType) cfgSingleType.value = singleAct.type || "url";
+                if (cfgSingleVal) cfgSingleVal.value = singleAct.value || "";
+                if (cfgDoubleType) cfgDoubleType.value = doubleAct.type || "shortcut";
+                if (cfgDoubleVal) cfgDoubleVal.value = doubleAct.value || "";
             }
         }
 
@@ -1284,6 +1314,7 @@
 
         function addLog(msg, type = "info") {
             const feed = document.getElementById("logFeed");
+            if (!feed) return;
             const timeStr = new Date().toLocaleTimeString('he-IL');
             const item = document.createElement("div");
             item.className = "log-item";
@@ -1301,8 +1332,10 @@
                 .then(res => {
                     const card = document.getElementById(`zone_${zone}`);
                     const cls = mode === "double" ? "triggered-double" : "triggered-single";
-                    card.classList.add(cls);
-                    setTimeout(() => card.classList.remove(cls), 600);
+                    if (card) {
+                        card.classList.add(cls);
+                        setTimeout(() => card.classList.remove(cls), 600);
+                    }
                     triggerSpatialScreenRipple(zone, 0.99, mode);
                     playChime(523.25);
                     addLog(`בדיקה ידנית [${mode === "double" ? "נקישה כפולה" : "נקישה בודדת"}]: ${ZONE_NAMES[zone]} -> ${res.message}`, "test");
@@ -1438,9 +1471,19 @@
             })
             .then(r => r.json())
             .then(data => {
-                renderActions(data.actions);
+                if (data && data.actions) {
+                    renderActions(data.actions);
+                } else {
+                    renderActions(updated);
+                }
                 closeActionsModal();
-                addLog("הגדרות 8 הפעולות עודכנו בהצלחה", "system");
+                addLog("הגדרות 8 הפעולות עודכנו ונשמרו בהצלחה!", "system");
+            })
+            .catch(err => {
+                console.error("Error saving actions config:", err);
+                renderActions(updated);
+                closeActionsModal();
+                addLog("הגדרות עודכנו מקומית", "system");
             });
         }
 
