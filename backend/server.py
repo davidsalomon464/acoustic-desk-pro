@@ -263,21 +263,22 @@ def process_web_tap(data: WebAudioTransient):
     samples = np.array(data.samples, dtype=np.float32)
     
     if audio_engine.mode == "whistle":
-        note, peak_freq, purity = audio_engine.detect_whistle_note(samples)
-        if note is not None:
+        note, zone, peak_freq, purity = audio_engine.detect_whistle_note(samples)
+        if zone is not None:
             now = time.time()
-            if audio_engine.whistle_current_note == note:
+            if audio_engine.whistle_current_zone == zone:
                 duration = now - audio_engine.whistle_start_time
                 progress_pct = min(100, int((duration / audio_engine.whistle_duration_required) * 100))
                 on_whistle_note_progress(note, NOTE_NAMES_HEBREW.get(note, note), duration, progress_pct, peak_freq)
-                if duration >= audio_engine.whistle_duration_required and (now - audio_engine.last_whistle_trigger_time) > 1.2:
+                if duration >= audio_engine.whistle_duration_required and (now - audio_engine.last_whistle_trigger_time) > 0.8:
                     audio_engine.last_whistle_trigger_time = now
                     audio_engine.whistle_start_time = None
+                    audio_engine.whistle_current_zone = None
                     audio_engine.whistle_current_note = None
-                    note_zone_map = { "C": "top_left", "D": "top_left", "E": "top_right", "F": "top_right", "G": "bottom_left", "A": "bottom_right", "B": "bottom_right" }
-                    on_tap_detected(note_zone_map.get(note, "top_left"), 0.98, "single")
+                    on_tap_detected(zone, 0.98, "single")
             else:
                 audio_engine.whistle_start_time = now
+                audio_engine.whistle_current_zone = zone
                 audio_engine.whistle_current_note = note
         return {"status": "success"}
     else:
