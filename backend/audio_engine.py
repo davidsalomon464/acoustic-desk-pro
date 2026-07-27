@@ -104,7 +104,7 @@ class AudioEngine:
         self.whistle_current_zone = None
         self.whistle_current_note = None
         self.whistle_last_heard_time = 0
-        self.whistle_duration_required = 0.50
+        self.whistle_duration_required = 0.45
         self.last_whistle_trigger_time = 0
 
         self.on_audio_frame = None
@@ -142,7 +142,7 @@ class AudioEngine:
 
     def detect_whistle_note(self, mono_chunk):
         rms = float(np.sqrt(np.mean(mono_chunk**2)))
-        if rms < 0.002:
+        if rms < 0.0015:
             return None, None, 0, 0
 
         n = len(mono_chunk)
@@ -153,8 +153,11 @@ class AudioEngine:
         peak_freq = float(freqs[max_idx])
 
         total_energy = np.sum(fft_vals**2) + 1e-6
-        peak_energy = fft_vals[max_idx]**2
-        purity = float(peak_energy / total_energy)
+        # Sum 5 bins around max_idx to capture spectral leakage of whistle F0
+        b_start = max(0, max_idx - 2)
+        b_end = min(len(fft_vals), max_idx + 3)
+        peak_region_energy = np.sum(fft_vals[b_start:b_end]**2)
+        purity = float(peak_region_energy / total_energy)
 
         if purity < 0.08 or peak_freq < 350 or peak_freq > 3500:
             return None, None, peak_freq, purity
@@ -325,8 +328,8 @@ class AudioEngine:
                     self.whistle_current_zone = zone
                     self.whistle_current_note = note
             else:
-                # Allow a 0.45s grace period for short breath pauses before resetting timer
-                if self.whistle_start_time and (now - self.whistle_last_heard_time > 0.45):
+                # Allow a 0.50s grace period for short breath pauses before resetting timer
+                if self.whistle_start_time and (now - self.whistle_last_heard_time > 0.50):
                     self.whistle_start_time = None
                     self.whistle_current_zone = None
                     self.whistle_current_note = None
