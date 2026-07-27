@@ -29,7 +29,11 @@ NOTE_NAMES_HEBREW = {
     "F": "פה (F)",
     "G": "סול (G)",
     "A": "לה (A)",
-    "B": "סי (B)"
+    "B": "סי (B)",
+    "LOW": "שריקה נמוכה (דו/רה)",
+    "MID": "שריקה בינונית (מי/פה)",
+    "MID_HIGH": "שריקה גבוהה-בינונית (סול)",
+    "HIGH": "שריקה גבוהה (לה/סי)"
 }
 
 MODEL_FILE = os.path.join(os.path.dirname(__file__), "calibration_model.json")
@@ -65,7 +69,7 @@ class AudioEngine:
         self.channels = 2
         self.stream = None
         self.is_running = False
-        self.is_listening_active = False
+        self.is_listening_active = True
 
         self.mode = "taps"
 
@@ -95,12 +99,12 @@ class AudioEngine:
         self.pending_single_timer = None
         self.double_tap_max_interval = 0.45
 
-        # Whistle Flexible Pitch Detector Tracker
+        # Whistle Pitch Detector Tracker with Grace Hold Period
         self.whistle_start_time = None
         self.whistle_current_zone = None
         self.whistle_current_note = None
-        # Reduced whistle duration requirement to ~0.65s for smooth human whistling
-        self.whistle_duration_required = 0.65
+        self.whistle_last_heard_time = 0
+        self.whistle_duration_required = 0.50
         self.last_whistle_trigger_time = 0
 
         self.on_audio_frame = None
@@ -113,7 +117,8 @@ class AudioEngine:
     def set_mode(self, mode):
         if mode in ["taps", "whistle"]:
             self.mode = mode
-            logger.info(f"Audio Engine detection mode set to: {self.mode}")
+            self.is_listening_active = True
+            logger.info(f"Audio Engine detection mode set to: {self.mode} (Listening auto-enabled)")
             return True
         return False
 
@@ -137,7 +142,7 @@ class AudioEngine:
 
     def detect_whistle_note(self, mono_chunk):
         rms = float(np.sqrt(np.mean(mono_chunk**2)))
-        if rms < 0.010:
+        if rms < 0.002:
             return None, None, 0, 0
 
         n = len(mono_chunk)
@@ -151,29 +156,22 @@ class AudioEngine:
         peak_energy = fft_vals[max_idx]**2
         purity = float(peak_energy / total_energy)
 
-        if purity < 0.20 or peak_freq < 450 or peak_freq > 3000:
+        if purity < 0.08 or peak_freq < 350 or peak_freq > 3500:
             return None, None, peak_freq, purity
 
-        # Broad human-whistle note bands (incorporating vibrato & natural pitch wobble)
-        # Low octave / Mid octave / High octave mapping
         f = peak_freq
         note = None
         zone = None
 
-        if (480 <= f < 560) or (950 <= f < 1120) or (1900 <= f < 2240):
-            note, zone = "C", "top_left"
-        elif (560 <= f < 625) or (1120 <= f < 1250) or (2240 <= f < 2500):
-            note, zone = "D", "top_left"
-        elif (625 <= f < 680) or (1250 <= f < 1360) or (2500 <= f < 2720):
-            note, zone = "E", "top_right"
-        elif (680 <= f < 740) or (1360 <= f < 1480) or (2720 <= f < 2960):
-            note, zone = "F", "top_right"
-        elif (740 <= f < 830) or (1480 <= f < 1660):
-            note, zone = "G", "bottom_left"
-        elif (830 <= f < 930) or (1660 <= f < 1860):
-            note, zone = "A", "bottom_right"
-        elif (930 <= f < 1050) or (1860 <= f < 2050):
-            note, zone = "B", "bottom_right"
+        # Continuous pitch spectrum coverage (350 Hz to 3500 Hz) with NO gaps!
+        if 350 <= f < 1250:
+            note, zone = "LOW", "top_left"
+        elif 1250 <= f < 1650:
+            note, zone = "MID", "top_right"
+        elif 1650 <= f < 2000:
+            note, zone = "MID_HIGH", "bottom_left"
+        elif 2000 <= f <= 3500:
+            note, zone = "HIGH", "bottom_right"
 
         return note, zone, peak_freq, purity
 
@@ -303,6 +301,7 @@ class AudioEngine:
         if self.mode == "whistle":
             note, zone, peak_freq, purity = self.detect_whistle_note(mono_samples)
             if zone is not None:
+                self.whistle_last_heard_time = now
                 if self.whistle_current_zone == zone:
                     duration = now - self.whistle_start_time
                     progress_pct = min(100, int((duration / self.whistle_duration_required) * 100))
@@ -311,13 +310,13 @@ class AudioEngine:
                         note_display = NOTE_NAMES_HEBREW.get(note, note)
                         self.on_whistle_note_progress(note, note_display, duration, progress_pct, peak_freq)
 
-                    if duration >= self.whistle_duration_required and (now - self.last_whistle_trigger_time) > 1.0:
+                    if duration >= self.whistle_duration_required and (now - self.last_whistle_trigger_time) > 0.8:
                         self.last_whistle_trigger_time = now
                         self.whistle_start_time = None
                         self.whistle_current_zone = None
                         self.whistle_current_note = None
 
-                        logger.info(f"🎶 FLEXIBLE WHISTLE NOTE CONFIRMED: Note={note} ({peak_freq:.1f}Hz) -> Zone={zone}")
+                        logger.info(f"🎶 CONTINUOUS WHISTLE CONFIRMED: Note={note} ({peak_freq:.1f}Hz) -> Zone={zone}")
 
                         if self.on_tap_detected:
                             self.on_tap_detected(zone, 0.98, "single")
@@ -326,7 +325,8 @@ class AudioEngine:
                     self.whistle_current_zone = zone
                     self.whistle_current_note = note
             else:
-                if self.whistle_start_time and (now - self.whistle_start_time > 0.25):
+                # Allow a 0.45s grace period for short breath pauses before resetting timer
+                if self.whistle_start_time and (now - self.whistle_last_heard_time > 0.45):
                     self.whistle_start_time = None
                     self.whistle_current_zone = None
                     self.whistle_current_note = None
@@ -505,7 +505,7 @@ class AudioEngine:
                 dtype='float32',
                 callback=self.audio_callback
             )
-            self.stream.start()
+            self stream.start()
             self.is_running = True
             logger.info("Stereo audio stream started (channels=2).")
         except Exception as e:

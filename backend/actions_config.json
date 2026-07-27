@@ -1,22 +1,46 @@
 {
   "top_left": {
     "name": "↖️ שמאל למעלה",
-    "type": "url",
-    "value": "https://music.youtube.com/"
+    "single": {
+      "type": "url",
+      "value": "https://music.youtube.com/"
+    },
+    "double": {
+      "type": "shortcut",
+      "value": "volume_up"
+    }
   },
   "top_right": {
     "name": "↗️ ימין למעלה",
-    "type": "url",
-    "value": "https://youtube.com"
+    "single": {
+      "type": "url",
+      "value": "https://youtube.com"
+    },
+    "double": {
+      "type": "shortcut",
+      "value": "mute"
+    }
   },
   "bottom_left": {
     "name": "↙️ שמאל למטה",
-    "type": "app",
-    "value": "Calculator"
+    "single": {
+      "type": "app",
+      "value": "Calculator"
+    },
+    "double": {
+      "type": "shortcut",
+      "value": ""
+    }
   },
   "bottom_right": {
     "name": "↘️ ימין למטה",
-    "type": "url",
-    "value": "https://mail.google.com/mail/u/0/#inbox"
+    "single": {
+      "type": "url",
+      "value": "https://mail.google.com/mail/u/0/#inbox"
+    },
+    "double": {
+      "type": "shortcut",
+      "value": "lock_screen"
+    }
   }
 }
