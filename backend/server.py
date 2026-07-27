@@ -24,9 +24,7 @@ if getattr(sys, 'frozen', False):
 else:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-CONFIG_DIR = os.path.expanduser("~/.acoustic_desk_buttons")
-os.makedirs(CONFIG_DIR, exist_ok=True)
-CONFIG_FILE = os.path.join(CONFIG_DIR, "actions_config.json")
+CONFIG_FILE = os.path.join(BASE_DIR, "backend", "actions_config.json")
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 DEFAULT_ACTIONS = PROFILES["work"]
@@ -61,13 +59,34 @@ app = FastAPI(title="Acoustic Desk Buttons")
 manager = ConnectionManager()
 audio_engine = AudioEngine()
 
+def normalize_actions(data: dict) -> dict:
+    normalized = {}
+    for zone in ZONES:
+        default_z = DEFAULT_ACTIONS.get(zone, {})
+        raw_z = data.get(zone, {}) if isinstance(data, dict) else {}
+
+        if "single" in raw_z and "double" in raw_z:
+            normalized[zone] = raw_z
+        else:
+            single_act = {
+                "type": raw_z.get("type", default_z.get("single", {}).get("type", "url")),
+                "value": raw_z.get("value", default_z.get("single", {}).get("value", "https://google.com"))
+            }
+            double_act = default_z.get("double", {"type": "shortcut", "value": "mute"})
+            normalized[zone] = {
+                "name": raw_z.get("name", ZONE_NAMES_HEBREW.get(zone, zone)),
+                "single": single_act,
+                "double": double_act
+            }
+    return normalized
+
 def load_actions():
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if isinstance(data, dict) and "top_left" in data:
-                    return data
+                    return normalize_actions(data)
         except Exception as e:
             logger.error(f"Error loading config: {e}")
     return DEFAULT_ACTIONS
@@ -196,7 +215,7 @@ def get_status():
 def switch_profile(profile_key: str):
     global actions_config
     if profile_key in PROFILES:
-        actions_config = PROFILES[profile_key]
+        actions_config = normalize_actions(PROFILES[profile_key])
         audio_engine.active_profile_key = profile_key
         save_actions(actions_config)
         manager.broadcast_sync({"event": "profile_switched", "active_profile": profile_key, "actions": actions_config})
@@ -260,10 +279,7 @@ async def update_actions(request: Request):
         else:
             raise ValueError("Invalid payload structure")
 
-        for z in ZONES:
-            if z in new_actions:
-                actions_config[z] = new_actions[z]
-
+        actions_config = normalize_actions(new_actions)
         save_actions(actions_config)
         logger.info(f"Updated actions configuration successfully: {actions_config}")
         manager.broadcast_sync({"event": "actions_updated", "actions": actions_config})
