@@ -67,7 +67,6 @@ class AudioEngine:
         self.is_running = False
         self.is_listening_active = False
 
-        # Acoustic Detection Mode: "taps" or "whistle"
         self.mode = "taps"
 
         self.active_profile_key = "work"
@@ -96,10 +95,12 @@ class AudioEngine:
         self.pending_single_timer = None
         self.double_tap_max_interval = 0.45
 
-        # Whistle Sustained Note Detector Tracker
+        # Whistle Flexible Pitch Detector Tracker
         self.whistle_start_time = None
+        self.whistle_current_zone = None
         self.whistle_current_note = None
-        self.whistle_duration_required = 0.85 # ~1 second sustained whistle
+        # Reduced whistle duration requirement to ~0.65s for smooth human whistling
+        self.whistle_duration_required = 0.65
         self.last_whistle_trigger_time = 0
 
         self.on_audio_frame = None
@@ -136,44 +137,45 @@ class AudioEngine:
 
     def detect_whistle_note(self, mono_chunk):
         rms = float(np.sqrt(np.mean(mono_chunk**2)))
-        if rms < 0.015:
-            return None, 0, 0
+        if rms < 0.010:
+            return None, None, 0, 0
 
         n = len(mono_chunk)
         fft_vals = np.abs(np.fft.rfft(mono_chunk * np.hanning(n)))
         freqs = np.fft.rfftfreq(n, 1.0 / self.sample_rate)
 
         max_idx = int(np.argmax(fft_vals))
-        peak_freq = freqs[max_idx]
+        peak_freq = float(freqs[max_idx])
 
         total_energy = np.sum(fft_vals**2) + 1e-6
         peak_energy = fft_vals[max_idx]**2
         purity = float(peak_energy / total_energy)
 
-        if purity < 0.28 or peak_freq < 450 or peak_freq > 2800:
-            return None, peak_freq, purity
+        if purity < 0.20 or peak_freq < 450 or peak_freq > 3000:
+            return None, None, peak_freq, purity
 
-        note_freqs = [
-            ("C", [523.25, 1046.5, 2093.0]),
-            ("D", [587.33, 1174.7, 2349.3]),
-            ("E", [659.25, 1318.5, 2637.0]),
-            ("F", [698.46, 1396.9, 2793.8]),
-            ("G", [783.99, 1567.9]),
-            ("A", [880.00, 1760.0]),
-            ("B", [987.77, 1975.5])
-        ]
+        # Broad human-whistle note bands (incorporating vibrato & natural pitch wobble)
+        # Low octave / Mid octave / High octave mapping
+        f = peak_freq
+        note = None
+        zone = None
 
-        best_note = None
-        min_diff = float("inf")
+        if (480 <= f < 560) or (950 <= f < 1120) or (1900 <= f < 2240):
+            note, zone = "C", "top_left"
+        elif (560 <= f < 625) or (1120 <= f < 1250) or (2240 <= f < 2500):
+            note, zone = "D", "top_left"
+        elif (625 <= f < 680) or (1250 <= f < 1360) or (2500 <= f < 2720):
+            note, zone = "E", "top_right"
+        elif (680 <= f < 740) or (1360 <= f < 1480) or (2720 <= f < 2960):
+            note, zone = "F", "top_right"
+        elif (740 <= f < 830) or (1480 <= f < 1660):
+            note, zone = "G", "bottom_left"
+        elif (830 <= f < 930) or (1660 <= f < 1860):
+            note, zone = "A", "bottom_right"
+        elif (930 <= f < 1050) or (1860 <= f < 2050):
+            note, zone = "B", "bottom_right"
 
-        for note_name, freqs_list in note_freqs:
-            for f in freqs_list:
-                diff = abs(peak_freq - f)
-                if diff < min_diff and diff < 120.0:
-                    min_diff = diff
-                    best_note = note_name
-
-        return best_note, peak_freq, purity
+        return note, zone, peak_freq, purity
 
     def extract_features_stereo(self, audio_slice_stereo):
         if len(audio_slice_stereo) < 128:
@@ -299,40 +301,35 @@ class AudioEngine:
         now = time.time()
 
         if self.mode == "whistle":
-            note, peak_freq, purity = self.detect_whistle_note(mono_samples)
-            if note is not None:
-                if self.whistle_current_note == note:
+            note, zone, peak_freq, purity = self.detect_whistle_note(mono_samples)
+            if zone is not None:
+                if self.whistle_current_zone == zone:
                     duration = now - self.whistle_start_time
                     progress_pct = min(100, int((duration / self.whistle_duration_required) * 100))
                     
                     if self.on_whistle_note_progress:
-                        self.on_whistle_note_progress(note, NOTE_NAMES_HEBREW.get(note, note), duration, progress_pct, peak_freq)
+                        note_display = NOTE_NAMES_HEBREW.get(note, note)
+                        self.on_whistle_note_progress(note, note_display, duration, progress_pct, peak_freq)
 
-                    if duration >= self.whistle_duration_required and (now - self.last_whistle_trigger_time) > 1.2:
+                    if duration >= self.whistle_duration_required and (now - self.last_whistle_trigger_time) > 1.0:
                         self.last_whistle_trigger_time = now
                         self.whistle_start_time = None
+                        self.whistle_current_zone = None
                         self.whistle_current_note = None
 
-                        note_zone_map = {
-                            "C": "top_left",
-                            "D": "top_left",
-                            "E": "top_right",
-                            "F": "top_right",
-                            "G": "bottom_left",
-                            "A": "bottom_right",
-                            "B": "bottom_right"
-                        }
-                        target_zone = note_zone_map.get(note, "top_left")
-                        logger.info(f"🎶 1-SECOND SUSTAINED WHISTLE NOTE CONFIRMED: Note={note} ({peak_freq:.1f}Hz) -> Zone={target_zone}")
+                        logger.info(f"🎶 FLEXIBLE WHISTLE NOTE CONFIRMED: Note={note} ({peak_freq:.1f}Hz) -> Zone={zone}")
 
                         if self.on_tap_detected:
-                            self.on_tap_detected(target_zone, 0.98, "single")
+                            self.on_tap_detected(zone, 0.98, "single")
                 else:
                     self.whistle_start_time = now
+                    self.whistle_current_zone = zone
                     self.whistle_current_note = note
             else:
-                self.whistle_start_time = None
-                self.whistle_current_note = None
+                if self.whistle_start_time and (now - self.whistle_start_time > 0.25):
+                    self.whistle_start_time = None
+                    self.whistle_current_zone = None
+                    self.whistle_current_note = None
 
         else:
             if peak > self.sensitivity_threshold and (now - self.last_trigger_time) > self.cooldown_sec:
