@@ -613,6 +613,10 @@
         </div>
 
         <div class="apple-nav-right">
+            <button class="apple-btn" id="btnMicAuth" onclick="requestMicPermissionPrompt()" style="background: rgba(255, 214, 10, 0.18); border: 1px solid var(--apple-gold); color: var(--apple-gold); font-weight: 600;">
+                🎙️ אפשר מיקרופון (לחץ כאן)
+            </button>
+
             <button class="apple-power off" id="btnTogglePower" onclick="toggleEnginePower()">
                 <span id="powerIcon">🔴</span>
                 <span id="powerText">כבוי (לחץ להפעלה)</span>
@@ -1167,10 +1171,24 @@
         function requestMicPermissionPrompt() {
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
+                    const btn = document.getElementById("btnMicAuth");
+                    if (btn) {
+                        btn.style.background = "rgba(48, 209, 88, 0.15)";
+                        btn.style.borderColor = "var(--apple-green)";
+                        btn.style.color = "var(--apple-green)";
+                        btn.innerText = "🎙️ מיקרופון בדפדפן מחובר!";
+                    }
                     addLog("🎙️ הרשאת מיקרופון אושרה בדפדפן בהצלחה!", "system");
                     startBrowserAudioProcessing(stream);
+                    if (!isEngineActive) {
+                        toggleEnginePower();
+                    }
                 })
                 .catch(err => {
+                    const btn = document.getElementById("btnMicAuth");
+                    if (btn) {
+                        btn.innerText = "⚠️ שגיאת מיקרופון (לחץ שוב)";
+                    }
                     addLog(`שגיאה בגישה למיקרופון בדפדפן: ${err.message}`, "system");
                 });
         }
